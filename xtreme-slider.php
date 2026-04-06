@@ -17,7 +17,7 @@
 defined( 'ABSPATH' ) || exit;
 
 define( 'XS_VERSION',         '1.2.0' );
-define( 'XS_DB_VERSION',      '1' );
+define( 'XS_DB_VERSION',      '2' );
 define( 'XS_PLUGIN_FILE',     __FILE__ );
 define( 'XS_PLUGIN_PATH',     plugin_dir_path( __FILE__ ) );
 define( 'XS_PLUGIN_URL',      plugin_dir_url( __FILE__ ) );
@@ -33,6 +33,7 @@ register_deactivation_hook( __FILE__, array( 'XS_Deactivator', 'deactivate' ) );
 add_action( 'plugins_loaded', 'xs_init_plugin' );
 
 function xs_init_plugin() {
+	XS_Activator::maybe_upgrade();
 	require_once XS_PLUGIN_PATH . 'inc/class-plugin.php';
 	XS_Plugin::instance();
 }

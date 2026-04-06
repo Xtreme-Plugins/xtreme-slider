@@ -85,8 +85,24 @@ function xs_count_slides( $slider_id ) {
  * @return string
  */
 function xs_sanitize_hex_color( $color ) {
+	// Accept 6-digit hex.
 	if ( preg_match( '/^#[a-fA-F0-9]{6}$/', $color ) ) {
 		return $color;
 	}
-	return '#ec38bc';
+	// Accept 3-digit shorthand and expand to 6-digit.
+	if ( preg_match( '/^#([a-fA-F0-9])([a-fA-F0-9])([a-fA-F0-9])$/', $color, $m ) ) {
+		return '#' . $m[1] . $m[1] . $m[2] . $m[2] . $m[3] . $m[3];
+	}
+	return '';
+}
+
+/**
+ * Sanitize a fixed height value (integer between 50 and 2000).
+ *
+ * @param mixed $value
+ * @return int 0 if out of range, otherwise the validated integer.
+ */
+function xs_sanitize_fixed_height( $value ) {
+	$val = absint( $value );
+	return ( $val >= 50 && $val <= 2000 ) ? $val : 0;
 }

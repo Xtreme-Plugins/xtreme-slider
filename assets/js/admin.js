@@ -171,7 +171,14 @@
         }
 
         /* ==================================================================
-           9. Color Pickers
+           9. Fixed-Height Row Toggle
+           ================================================================== */
+        $(document).on('change', 'select[name="image_ratio"]', function () {
+            $('#xs-fixed-height-row').toggle( $(this).val() === 'fixed' );
+        });
+
+        /* ==================================================================
+           10. Color Pickers
            ================================================================== */
         if ($.fn.wpColorPicker) {
             $('.xs-color-picker').wpColorPicker({
@@ -182,18 +189,52 @@
                     updateGradientPreview();
                 }
             });
+
+            // Close picker when clicking its own swatch button while open (toggle).
+            $(document).on('click', '.wp-color-result', function () {
+                var $btn     = $(this);
+                var $wrap    = $btn.closest('.wp-picker-container');
+                var $holder  = $wrap.find('.wp-picker-holder');
+                var isOpen   = $wrap.hasClass('wp-picker-open');
+
+                // Close all other open pickers first.
+                $('.wp-picker-container.wp-picker-open').not($wrap).each(function () {
+                    $(this).find('.xs-color-picker').wpColorPicker('close');
+                });
+
+                // Toggle current: if already open, close it.
+                if (isOpen) {
+                    $wrap.find('.xs-color-picker').wpColorPicker('close');
+                }
+            });
+
+            // Close any open picker when clicking outside of it.
+            $(document).on('click', function (e) {
+                if (!$(e.target).closest('.wp-picker-container').length) {
+                    $('.wp-picker-container.wp-picker-open').each(function () {
+                        $(this).find('.xs-color-picker').wpColorPicker('close');
+                    });
+                }
+            });
         }
 
         function updateGradientPreview() {
             setTimeout(function () {
-                var start = $('input[name="gradient_start"]').val() || '#ec38bc';
-                var end = $('input[name="gradient_end"]').val() || '#7303c0';
-                $('#xs-gradient-preview').css('background', 'linear-gradient(135deg, ' + start + ', ' + end + ')');
+                var start = $('input[name="gradient_start"]').val();
+                var end   = $('input[name="gradient_end"]').val();
+                var $preview = $('#xs-gradient-preview');
+                if (start || end) {
+                    var from = start || end;
+                    var to   = end   || start;
+                    $preview.css('background', 'linear-gradient(135deg, ' + from + ', ' + to + ')');
+                } else {
+                    $preview.css('background', '');
+                }
             }, 50);
         }
 
         /* ==================================================================
-           10. Save Button Loading Spinner
+           11. Save Button Loading Spinner
            ================================================================== */
         $('form').on('submit', function () {
             var $btn = $(this).find('#xs-save-btn');

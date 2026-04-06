@@ -24,6 +24,7 @@ class XS_Activator {
 			autoplay_speed   INT UNSIGNED NOT NULL DEFAULT 4000,
 			fullscreen       TINYINT(1) NOT NULL DEFAULT 0,
 			image_ratio      VARCHAR(10) NOT NULL DEFAULT '16:10',
+			fixed_height     SMALLINT UNSIGNED NOT NULL DEFAULT 0,
 			link_hover_color VARCHAR(7) NOT NULL DEFAULT '#ee212b',
 			gradient_start   VARCHAR(7) NOT NULL DEFAULT '#ec38bc',
 			gradient_end     VARCHAR(7) NOT NULL DEFAULT '#7303c0',
@@ -66,5 +67,22 @@ class XS_Activator {
 				),
 			) );
 		}
+	}
+
+	public static function maybe_upgrade() {
+		if ( get_option( 'xs_db_version' ) === XS_DB_VERSION ) {
+			return;
+		}
+		self::create_tables();
+		// Ensure fixed_height column exists on live table for in-place upgrades.
+		global $wpdb;
+		$table = $wpdb->prefix . 'xs_sliders';
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Schema check for upgrade.
+		$col = $wpdb->get_results( "SHOW COLUMNS FROM `{$table}` LIKE 'fixed_height'" );
+		if ( empty( $col ) ) {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.SchemaChange -- Adding column during plugin upgrade.
+			$wpdb->query( "ALTER TABLE `{$table}` ADD COLUMN `fixed_height` SMALLINT UNSIGNED NOT NULL DEFAULT 0 AFTER `image_ratio`" );
+		}
+		update_option( 'xs_db_version', XS_DB_VERSION );
 	}
 }

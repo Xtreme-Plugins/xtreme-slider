@@ -15,7 +15,7 @@ class XS_Admin_Settings {
 			<div class="xs-admin-header">
 				<div class="xs-admin-logo">
 					<a href="https://xtremeplugins.com/plugins/xtreme-slider" target="_blank" rel="noopener noreferrer">
-						<img src="<?php echo esc_url( XS_PLUGIN_URL . 'assets/img/xtreme-slider.webp' ); ?>" alt="Xtreme Slider">
+						<img src="<?php echo esc_url( XS_PLUGIN_URL . 'assets/img/xtreme-slider.svg' ); ?>" alt="Xtreme Slider">
 					</a>
 				</div>
 			</div>

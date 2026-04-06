@@ -43,12 +43,13 @@ class XS_Shortcode {
 
 		$renderer = new XS_Renderer();
 		return $renderer->render( $slider, $slides, array(
-			'layout'     => $layout,
-			'visible'    => $visible,
-			'autoplay'   => $autoplay,
-			'speed'      => intval( $slider->autoplay_speed ),
-			'fullscreen' => $fullscreen,
-			'ratio'      => $slider->image_ratio ?? '16:10',
+			'layout'       => $layout,
+			'visible'      => $visible,
+			'autoplay'     => $autoplay,
+			'speed'        => intval( $slider->autoplay_speed ),
+			'fullscreen'   => $fullscreen,
+			'ratio'        => $slider->image_ratio ?? '16:10',
+			'fixed_height' => absint( $slider->fixed_height ?? 0 ),
 		) );
 	}
 }

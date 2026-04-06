@@ -10,7 +10,7 @@ class XS_Admin_Sliders {
 			<div class="xs-admin-header">
 				<div class="xs-admin-logo">
 					<a href="https://xtremeplugins.com/plugins/xtreme-slider" target="_blank" rel="noopener noreferrer">
-						<img src="<?php echo esc_url( XS_PLUGIN_URL . 'assets/img/xtreme-slider.webp' ); ?>" alt="Xtreme Slider">
+						<img src="<?php echo esc_url( XS_PLUGIN_URL . 'assets/img/xtreme-slider.svg' ); ?>" alt="Xtreme Slider">
 					</a>
 				</div>
 				<a href="<?php echo esc_url( admin_url( 'admin.php?page=xs-edit' ) ); ?>" class="xs-btn xs-btn-primary"><?php echo '+ ' . esc_html__( 'Add New Slider', 'xtreme-slider' ); ?></a>

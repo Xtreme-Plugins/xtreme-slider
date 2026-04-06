@@ -24,6 +24,7 @@ class XS_Admin_Edit {
 				'autoplay_speed' => xs_setting( 'defaults', 'autoplay_speed', 4000 ),
 				'fullscreen'     => xs_setting( 'defaults', 'fullscreen', 0 ),
 				'image_ratio'    => xs_setting( 'defaults', 'image_ratio', '16:10' ),
+				'fixed_height'   => 0,
 				'link_hover_color' => '#ee212b',
 				'gradient_start' => xs_setting( 'defaults', 'gradient_start', '#ec38bc' ),
 				'gradient_end'   => xs_setting( 'defaults', 'gradient_end', '#7303c0' ),
@@ -37,7 +38,7 @@ class XS_Admin_Edit {
 			<div class="xs-admin-header">
 				<div class="xs-admin-logo">
 					<a href="https://xtremeplugins.com/plugins/xtreme-slider" target="_blank" rel="noopener noreferrer">
-						<img src="<?php echo esc_url( XS_PLUGIN_URL . 'assets/img/xtreme-slider.webp' ); ?>" alt="Xtreme Slider">
+						<img src="<?php echo esc_url( XS_PLUGIN_URL . 'assets/img/xtreme-slider.svg' ); ?>" alt="Xtreme Slider">
 					</a>
 				</div>
 				<a href="<?php echo esc_url( admin_url( 'admin.php?page=xtreme-slider' ) ); ?>" class="xs-btn xs-btn-secondary"><?php echo '&larr; ' . esc_html__( 'All Sliders', 'xtreme-slider' ); ?></a>
@@ -155,12 +156,19 @@ class XS_Admin_Edit {
 									<?php esc_html_e( 'Fullscreen (edge-to-edge)', 'xtreme-slider' ); ?>
 								</label>
 							</div>
-							<div class="xs-form-row">
+							<div class="xs-form-row xs-ratio-row">
 								<label><?php esc_html_e( 'Image Ratio', 'xtreme-slider' ); ?></label>
-								<select name="image_ratio">
-									<option value="16:10" <?php selected( $slider->image_ratio ?? '16:10', '16:10' ); ?>><?php esc_html_e( '16:10 (Landscape)', 'xtreme-slider' ); ?></option>
-									<option value="1:1" <?php selected( $slider->image_ratio ?? '16:10', '1:1' ); ?>><?php esc_html_e( '1:1 (Square)', 'xtreme-slider' ); ?></option>
-								</select>
+								<div class="xs-ratio-inline">
+									<select name="image_ratio">
+										<option value="16:10" <?php selected( $slider->image_ratio ?? '16:10', '16:10' ); ?>><?php esc_html_e( '16:10 (Landscape)', 'xtreme-slider' ); ?></option>
+										<option value="1:1" <?php selected( $slider->image_ratio ?? '16:10', '1:1' ); ?>><?php esc_html_e( '1:1 (Square)', 'xtreme-slider' ); ?></option>
+										<option value="fixed" <?php selected( $slider->image_ratio ?? '16:10', 'fixed' ); ?>><?php esc_html_e( 'Fixed Height', 'xtreme-slider' ); ?></option>
+									</select>
+									<div id="xs-fixed-height-row" class="xs-fixed-height-inline" style="<?php echo ( ( $slider->image_ratio ?? '' ) === 'fixed' ) ? '' : 'display:none;'; ?>">
+										<input type="number" name="fixed_height" value="<?php echo esc_attr( $slider->fixed_height ?? 400 ); ?>" min="50" max="2000" class="xs-input-sm" placeholder="400">
+										<span class="xs-unit-label">px</span>
+									</div>
+								</div>
 							</div>
 							<div class="xs-form-row">
 								<label><?php esc_html_e( 'Link Hover Color', 'xtreme-slider' ); ?></label>
@@ -190,13 +198,20 @@ class XS_Admin_Edit {
 							<p class="xs-form-desc"><?php esc_html_e( 'Visible behind the slider in Cool layout.', 'xtreme-slider' ); ?></p>
 							<div class="xs-form-row">
 								<label><?php esc_html_e( 'Start Color', 'xtreme-slider' ); ?></label>
-								<input type="text" name="gradient_start" value="<?php echo esc_attr( $slider->gradient_start ); ?>" class="xs-color-picker">
+								<input type="text" name="gradient_start" value="<?php echo esc_attr( $slider->gradient_start ?? '' ); ?>" class="xs-color-picker">
 							</div>
 							<div class="xs-form-row">
 								<label><?php esc_html_e( 'End Color', 'xtreme-slider' ); ?></label>
-								<input type="text" name="gradient_end" value="<?php echo esc_attr( $slider->gradient_end ); ?>" class="xs-color-picker">
+								<input type="text" name="gradient_end" value="<?php echo esc_attr( $slider->gradient_end ?? '' ); ?>" class="xs-color-picker">
 							</div>
-							<div class="xs-gradient-preview" id="xs-gradient-preview" style="background: linear-gradient(135deg, <?php echo esc_attr( $slider->gradient_start ); ?>, <?php echo esc_attr( $slider->gradient_end ); ?>);"></div>
+							<?php
+							$gs = $slider->gradient_start ?? '';
+							$ge = $slider->gradient_end   ?? '';
+							$preview_style = ( $gs || $ge )
+								? 'background: linear-gradient(135deg, ' . esc_attr( $gs ?: $ge ) . ', ' . esc_attr( $ge ?: $gs ) . ');'
+								: '';
+						?>
+						<div class="xs-gradient-preview" id="xs-gradient-preview" style="<?php echo esc_attr( $preview_style ); ?>"></div>
 						</div>
 
 						<div class="xs-form-actions">
@@ -230,10 +245,11 @@ class XS_Admin_Edit {
 		$autoplay_speed = max( 2000, min( 10000, absint( wp_unslash( $_POST['autoplay_speed'] ?? 4000 ) ) ) );
 		$fullscreen     = isset( $_POST['fullscreen'] ) ? 1 : 0;
 		$image_ratio    = sanitize_text_field( wp_unslash( $_POST['image_ratio'] ?? '16:10' ) );
-		$image_ratio    = in_array( $image_ratio, array( '16:10', '1:1' ), true ) ? $image_ratio : '16:10';
-		$link_hover_color = xs_sanitize_hex_color( sanitize_text_field( wp_unslash( $_POST['link_hover_color'] ?? '#ee212b' ) ) );
-		$gradient_start   = xs_sanitize_hex_color( sanitize_text_field( wp_unslash( $_POST['gradient_start'] ?? '#ec38bc' ) ) );
-		$gradient_end     = xs_sanitize_hex_color( sanitize_text_field( wp_unslash( $_POST['gradient_end'] ?? '#7303c0' ) ) );
+		$image_ratio    = in_array( $image_ratio, array( '16:10', '1:1', 'fixed' ), true ) ? $image_ratio : '16:10';
+		$fixed_height   = xs_sanitize_fixed_height( $_POST['fixed_height'] ?? 0 );
+		$link_hover_color = xs_sanitize_hex_color( sanitize_text_field( wp_unslash( $_POST['link_hover_color'] ?? '' ) ) ) ?: '#ee212b';
+		$gradient_start   = xs_sanitize_hex_color( sanitize_text_field( wp_unslash( $_POST['gradient_start'] ?? '' ) ) );
+		$gradient_end     = xs_sanitize_hex_color( sanitize_text_field( wp_unslash( $_POST['gradient_end'] ?? '' ) ) );
 		$status         = sanitize_text_field( wp_unslash( $_POST['status'] ?? 'active' ) );
 		$status         = in_array( $status, array( 'active', 'draft' ), true ) ? $status : 'active';
 		$now            = current_time( 'mysql' );
@@ -246,6 +262,7 @@ class XS_Admin_Edit {
 			'autoplay_speed' => $autoplay_speed,
 			'fullscreen'     => $fullscreen,
 			'image_ratio'      => $image_ratio,
+			'fixed_height'     => $fixed_height,
 			'link_hover_color' => $link_hover_color,
 			'gradient_start'   => $gradient_start,
 			'gradient_end'   => $gradient_end,
@@ -253,7 +270,7 @@ class XS_Admin_Edit {
 			'updated_at'     => $now,
 		);
 
-		$format = array( '%s', '%s', '%d', '%d', '%d', '%d', '%s', '%s', '%s', '%s', '%s', '%s' );
+		$format = array( '%s', '%s', '%d', '%d', '%d', '%d', '%s', '%d', '%s', '%s', '%s', '%s', '%s' );
 
 		if ( $slider_id ) {
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table, update operation.
