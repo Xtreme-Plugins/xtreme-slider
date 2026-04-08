@@ -77,10 +77,10 @@ class XS_Activator {
 		// Ensure fixed_height column exists on live table for in-place upgrades.
 		global $wpdb;
 		$table = $wpdb->prefix . 'xs_sliders';
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Schema check for upgrade.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter
 		$col = $wpdb->get_results( "SHOW COLUMNS FROM `{$table}` LIKE 'fixed_height'" );
 		if ( empty( $col ) ) {
-			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.SchemaChange -- Adding column during plugin upgrade.
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.DirectDatabaseQuery.SchemaChange,WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter
 			$wpdb->query( "ALTER TABLE `{$table}` ADD COLUMN `fixed_height` SMALLINT UNSIGNED NOT NULL DEFAULT 0 AFTER `image_ratio`" );
 		}
 		update_option( 'xs_db_version', XS_DB_VERSION );

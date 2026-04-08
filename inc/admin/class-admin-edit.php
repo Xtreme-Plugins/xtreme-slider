@@ -246,7 +246,7 @@ class XS_Admin_Edit {
 		$fullscreen     = isset( $_POST['fullscreen'] ) ? 1 : 0;
 		$image_ratio    = sanitize_text_field( wp_unslash( $_POST['image_ratio'] ?? '16:10' ) );
 		$image_ratio    = in_array( $image_ratio, array( '16:10', '1:1', 'fixed' ), true ) ? $image_ratio : '16:10';
-		$fixed_height   = xs_sanitize_fixed_height( $_POST['fixed_height'] ?? 0 );
+		$fixed_height   = xs_sanitize_fixed_height( absint( wp_unslash( $_POST['fixed_height'] ?? 0 ) ) );
 		$link_hover_color = xs_sanitize_hex_color( sanitize_text_field( wp_unslash( $_POST['link_hover_color'] ?? '' ) ) ) ?: '#ee212b';
 		$gradient_start   = xs_sanitize_hex_color( sanitize_text_field( wp_unslash( $_POST['gradient_start'] ?? '' ) ) );
 		$gradient_end     = xs_sanitize_hex_color( sanitize_text_field( wp_unslash( $_POST['gradient_end'] ?? '' ) ) );
