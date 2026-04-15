@@ -1,19 +1,19 @@
 <?php
 defined( 'ABSPATH' ) || exit;
 
-class XS_Admin_Sliders {
+class Xtrsl_Admin_Sliders {
 
 	public static function render() {
-		$sliders = xs_get_all_sliders();
+		$sliders = xtrsl_get_all_sliders();
 		?>
 		<div class="wrap xs-admin-wrap">
 			<div class="xs-admin-header">
 				<div class="xs-admin-logo">
 					<a href="https://xtremeplugins.com/plugins/xtreme-slider" target="_blank" rel="noopener noreferrer">
-						<img src="<?php echo esc_url( XS_PLUGIN_URL . 'assets/img/xtreme-slider.svg' ); ?>" alt="Xtreme Slider">
+						<img src="<?php echo esc_url( XTRSL_PLUGIN_URL . 'assets/img/xtreme-slider.webp' ); ?>" alt="Xtreme Slider">
 					</a>
 				</div>
-				<a href="<?php echo esc_url( admin_url( 'admin.php?page=xs-edit' ) ); ?>" class="xs-btn xs-btn-primary"><?php echo '+ ' . esc_html__( 'Add New Slider', 'xtreme-slider' ); ?></a>
+				<a href="<?php echo esc_url( admin_url( 'admin.php?page=xtrsl-edit' ) ); ?>" class="xs-btn xs-btn-primary"><?php echo '+ ' . esc_html__( 'Add New Slider', 'xtreme-slider' ); ?></a>
 			</div>
 
 			<?php if ( empty( $sliders ) ) : ?>
@@ -23,7 +23,7 @@ class XS_Admin_Sliders {
 					</div>
 					<h2><?php esc_html_e( 'No sliders yet', 'xtreme-slider' ); ?></h2>
 					<p><?php esc_html_e( 'Create your first slider to get started.', 'xtreme-slider' ); ?></p>
-					<a href="<?php echo esc_url( admin_url( 'admin.php?page=xs-edit' ) ); ?>" class="xs-btn xs-btn-primary xs-btn-lg"><?php esc_html_e( 'Create Slider', 'xtreme-slider' ); ?></a>
+					<a href="<?php echo esc_url( admin_url( 'admin.php?page=xtrsl-edit' ) ); ?>" class="xs-btn xs-btn-primary xs-btn-lg"><?php esc_html_e( 'Create Slider', 'xtreme-slider' ); ?></a>
 				</div>
 			<?php else : ?>
 				<table class="xs-table">
@@ -40,9 +40,9 @@ class XS_Admin_Sliders {
 					</thead>
 					<tbody>
 						<?php foreach ( $sliders as $slider ) :
-							$count    = xs_count_slides( $slider->id );
-							$edit_url = admin_url( 'admin.php?page=xs-edit&slider_id=' . $slider->id );
-							$del_url  = wp_nonce_url( admin_url( 'admin.php?page=xtreme-slider&action=delete&slider_id=' . $slider->id ), 'xs_delete_' . $slider->id );
+							$count    = xtrsl_count_slides( $slider->id );
+							$edit_url = admin_url( 'admin.php?page=xtrsl-edit&slider_id=' . $slider->id );
+							$del_url  = wp_nonce_url( admin_url( 'admin.php?page=xtreme-slider&action=delete&slider_id=' . $slider->id ), 'xtrsl_delete_' . $slider->id );
 						?>
 							<tr>
 								<td><a href="<?php echo esc_url( $edit_url ); ?>" class="xs-link"><?php echo esc_html( $slider->title ? $slider->title : __( '(Untitled)', 'xtreme-slider' ) ); ?></a></td>
@@ -76,7 +76,7 @@ class XS_Admin_Sliders {
 
 		$slider_id = absint( wp_unslash( $_GET['slider_id'] ) );
 
-		if ( ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ) ), 'xs_delete_' . $slider_id ) ) {
+		if ( ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ) ), 'xtrsl_delete_' . $slider_id ) ) {
 			wp_die( esc_html__( 'Security check failed.', 'xtreme-slider' ) );
 		}
 
@@ -86,9 +86,9 @@ class XS_Admin_Sliders {
 
 		global $wpdb;
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table, delete operation.
-		$wpdb->delete( $wpdb->prefix . 'xs_slides', array( 'slider_id' => $slider_id ), array( '%d' ) );
+		$wpdb->delete( $wpdb->prefix . 'xtrsl_slides', array( 'slider_id' => $slider_id ), array( '%d' ) );
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table, delete operation.
-		$wpdb->delete( $wpdb->prefix . 'xs_sliders', array( 'id' => $slider_id ), array( '%d' ) );
+		$wpdb->delete( $wpdb->prefix . 'xtrsl_sliders', array( 'id' => $slider_id ), array( '%d' ) );
 
 		wp_safe_redirect( admin_url( 'admin.php?page=xtreme-slider&deleted=1' ) );
 		exit;

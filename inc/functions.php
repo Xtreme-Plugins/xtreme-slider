@@ -9,8 +9,8 @@ defined( 'ABSPATH' ) || exit;
  * @param mixed  $default Fallback if not set.
  * @return mixed
  */
-function xs_setting( $group, $key, $default = null ) {
-	$settings = get_option( 'xs_settings', array() );
+function xtrsl_setting( $group, $key, $default = null ) {
+	$settings = get_option( 'xtrsl_settings', array() );
 	return isset( $settings[ $group ][ $key ] ) ? $settings[ $group ][ $key ] : $default;
 }
 
@@ -20,11 +20,11 @@ function xs_setting( $group, $key, $default = null ) {
  * @param int $slider_id
  * @return object|null
  */
-function xs_get_slider( $slider_id ) {
+function xtrsl_get_slider( $slider_id ) {
 	global $wpdb;
 	// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table.
 	return $wpdb->get_row( $wpdb->prepare(
-		"SELECT * FROM {$wpdb->prefix}xs_sliders WHERE id = %d LIMIT 1",
+		"SELECT * FROM {$wpdb->prefix}xtrsl_sliders WHERE id = %d LIMIT 1",
 		$slider_id
 	) );
 }
@@ -35,11 +35,11 @@ function xs_get_slider( $slider_id ) {
  * @param int $slider_id
  * @return array
  */
-function xs_get_slides( $slider_id ) {
+function xtrsl_get_slides( $slider_id ) {
 	global $wpdb;
 	// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table.
 	return $wpdb->get_results( $wpdb->prepare(
-		"SELECT * FROM {$wpdb->prefix}xs_slides WHERE slider_id = %d ORDER BY sort_order ASC",
+		"SELECT * FROM {$wpdb->prefix}xtrsl_slides WHERE slider_id = %d ORDER BY sort_order ASC",
 		$slider_id
 	) );
 }
@@ -50,17 +50,17 @@ function xs_get_slides( $slider_id ) {
  * @param string $status Optional status filter.
  * @return array
  */
-function xs_get_all_sliders( $status = '' ) {
+function xtrsl_get_all_sliders( $status = '' ) {
 	global $wpdb;
 	if ( $status ) {
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table.
 		return $wpdb->get_results( $wpdb->prepare(
-			"SELECT * FROM {$wpdb->prefix}xs_sliders WHERE status = %s ORDER BY created_at DESC",
+			"SELECT * FROM {$wpdb->prefix}xtrsl_sliders WHERE status = %s ORDER BY created_at DESC",
 			$status
 		) );
 	}
 	// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table.
-	return $wpdb->get_results( "SELECT * FROM {$wpdb->prefix}xs_sliders ORDER BY created_at DESC" );
+	return $wpdb->get_results( "SELECT * FROM {$wpdb->prefix}xtrsl_sliders ORDER BY created_at DESC" );
 }
 
 /**
@@ -69,11 +69,11 @@ function xs_get_all_sliders( $status = '' ) {
  * @param int $slider_id
  * @return int
  */
-function xs_count_slides( $slider_id ) {
+function xtrsl_count_slides( $slider_id ) {
 	global $wpdb;
 	// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table.
 	return (int) $wpdb->get_var( $wpdb->prepare(
-		"SELECT COUNT(*) FROM {$wpdb->prefix}xs_slides WHERE slider_id = %d",
+		"SELECT COUNT(*) FROM {$wpdb->prefix}xtrsl_slides WHERE slider_id = %d",
 		$slider_id
 	) );
 }
@@ -84,25 +84,9 @@ function xs_count_slides( $slider_id ) {
  * @param string $color
  * @return string
  */
-function xs_sanitize_hex_color( $color ) {
-	// Accept 6-digit hex.
+function xtrsl_sanitize_hex_color( $color ) {
 	if ( preg_match( '/^#[a-fA-F0-9]{6}$/', $color ) ) {
 		return $color;
 	}
-	// Accept 3-digit shorthand and expand to 6-digit.
-	if ( preg_match( '/^#([a-fA-F0-9])([a-fA-F0-9])([a-fA-F0-9])$/', $color, $m ) ) {
-		return '#' . $m[1] . $m[1] . $m[2] . $m[2] . $m[3] . $m[3];
-	}
-	return '';
-}
-
-/**
- * Sanitize a fixed height value (integer between 50 and 2000).
- *
- * @param mixed $value
- * @return int 0 if out of range, otherwise the validated integer.
- */
-function xs_sanitize_fixed_height( $value ) {
-	$val = absint( $value );
-	return ( $val >= 50 && $val <= 2000 ) ? $val : 0;
+	return '#ec38bc';
 }

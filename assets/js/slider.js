@@ -45,9 +45,6 @@
             this.initCool();
         }
 
-        // Hide arrows when there is nothing to scroll
-        this.updateArrowVisibility();
-
         // Arrow events
         if (this.prevBtn) {
             this.prevBtn.addEventListener('click', function () {
@@ -92,7 +89,6 @@
             } else {
                 self.updateCool();
             }
-            self.updateArrowVisibility();
         });
     };
 
@@ -302,17 +298,6 @@
         });
 
         this.updateDots();
-    };
-
-    /* ======================================================================
-       ARROW VISIBILITY
-       Hide prev/next arrows when all slides fit in the viewport (nothing to scroll).
-       Re-evaluated on init and every resize so responsive breakpoints are respected.
-       ====================================================================== */
-    XtremeSlider.prototype.updateArrowVisibility = function () {
-        var hidden = this.getMaxPage() === 0;
-        if (this.prevBtn) { this.prevBtn.style.display = hidden ? 'none' : ''; }
-        if (this.nextBtn) { this.nextBtn.style.display = hidden ? 'none' : ''; }
     };
 
     /* ======================================================================

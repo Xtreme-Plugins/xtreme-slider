@@ -194,22 +194,6 @@
     padding: 50px 40px;
 }
 
-/* No background gradient set — strip the wrapper padding and card shadows
-   so the slider sits flush against the page with no visible container. */
-.xs-layout-cool.xs-no-gradient {
-    padding: 0;
-    background: transparent !important;
-}
-
-.xs-layout-cool.xs-no-gradient .xs-slide-inner {
-    background: transparent;
-    box-shadow: none;
-}
-
-.xs-layout-cool.xs-no-gradient .xs-slide-inner:hover {
-    box-shadow: none;
-}
-
 .xs-layout-cool .xs-slider-viewport {
     overflow: hidden;
     border-radius: 16px;
@@ -544,18 +528,6 @@
     .xs-nav-next { right: 8px; }
     .xs-fullscreen .xs-nav-prev { left: 12px; }
     .xs-fullscreen .xs-nav-next { right: 12px; }
-}
-
-/* ==========================================================================
-   FIXED HEIGHT RATIO
-   ========================================================================== */
-.xs-ratio-fixed .xs-slide-inner {
-    aspect-ratio: unset;
-}
-.xs-ratio-fixed .xs-slide-inner img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
 }
 
 @media (max-width: 480px) {

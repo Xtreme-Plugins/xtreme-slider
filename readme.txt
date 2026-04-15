@@ -1,9 +1,8 @@
 === XtremeSlider ===
-Contributors: xtremeplugins
-Donate link: https://xtremeplugins.com/donate/xtreme-slider
+Contributors: xtremeplugins, loanpartnership
 Tags: slider, image slider, carousel, responsive slider, 3d slider
 Tested up to: 6.9
-Stable tag: 1.2.0
+Stable tag: 1.2.1
 Requires at least: 6.0
 Requires PHP: 7.4
 License: GPLv2 or later
@@ -103,6 +102,12 @@ Yes. Paths like `/roofing` work. Internal links stay in same tab, external links
 Yes. `[xtreme_slider id="5" layout="3d" visible="2" autoplay="true" fullscreen="true"]`
 
 == Changelog ==
+
+= 1.2.1 - 15th April 2026 =
+* Renamed all plugin-specific PHP constants, classes, functions, and option keys to use the unique `xtrsl_` prefix for WordPress.org compliance
+* Renamed database table prefixes from `xs_` to `xtrsl_` to avoid naming conflicts
+* Removed donate link that was returning a redirect response
+* Added plugin author to contributors list in readme
 
 = 1.2.0 - 25th March 2026 =
 * Added image ratio option: 16:10 (landscape) or 1:1 (square) per slider

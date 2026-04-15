@@ -1,7 +1,7 @@
 <?php
 defined( 'ABSPATH' ) || exit;
 
-class XS_Renderer {
+class Xtrsl_Renderer {
 
 	public function render( $slider, $slides, $opts ) {
 		$uid        = 'xs-' . $slider->id . '-' . wp_rand( 100, 999 );
@@ -12,16 +12,11 @@ class XS_Renderer {
 		$fullscreen = $opts['fullscreen'];
 		$total      = count( $slides );
 
-		$ratio        = $opts['ratio'] ?? '16:10';
-		$fixed_height = isset( $opts['fixed_height'] ) ? absint( $opts['fixed_height'] ) : 0;
+		$ratio = $opts['ratio'] ?? '16:10';
 
 		$wrap_class = 'xs-slider-wrap';
 		$wrap_class .= ' xs-layout-' . esc_attr( $layout );
-		if ( 'fixed' === $ratio ) {
-			$wrap_class .= ' xs-ratio-fixed';
-		} else {
-			$wrap_class .= ' xs-ratio-' . esc_attr( str_replace( ':', '-', $ratio ) );
-		}
+		$wrap_class .= ' xs-ratio-' . esc_attr( str_replace( ':', '-', $ratio ) );
 		if ( $fullscreen ) {
 			$wrap_class .= ' xs-fullscreen';
 		}
@@ -29,15 +24,9 @@ class XS_Renderer {
 		$hover_color = esc_attr( $slider->link_hover_color ?? '#ee212b' );
 		$style = "--xs-link-hover: {$hover_color};";
 		if ( 'cool' === $layout ) {
-			$start = ! empty( $slider->gradient_start ) ? esc_attr( $slider->gradient_start ) : '';
-			$end   = ! empty( $slider->gradient_end )   ? esc_attr( $slider->gradient_end )   : '';
-			if ( $start || $end ) {
-				$from   = $start ?: $end;
-				$to     = $end   ?: $start;
-				$style .= " background: linear-gradient(135deg, {$from}, {$to});";
-			} else {
-				$wrap_class .= ' xs-no-gradient';
-			}
+			$start = esc_attr( $slider->gradient_start );
+			$end   = esc_attr( $slider->gradient_end );
+			$style .= " background: linear-gradient(135deg, {$start}, {$end});";
 		}
 
 		ob_start();
@@ -64,7 +53,7 @@ class XS_Renderer {
 								<a href="<?php echo esc_url( $link ); ?>" class="xs-slide-link"<?php echo $is_external ? ' target="_blank" rel="noopener noreferrer"' : ''; ?>>
 							<?php endif; ?>
 
-							<div class="xs-slide-inner"<?php echo ( 'fixed' === $ratio && $fixed_height > 0 ) ? ' style="height:' . esc_attr( $fixed_height ) . 'px;"' : ''; ?>>
+							<div class="xs-slide-inner">
 								<img src="<?php echo esc_url( $img_url ); ?>" alt="<?php echo esc_attr( $title ); ?>" class="xs-slide-image" loading="lazy">
 								<?php if ( '3d' === $layout ) : ?>
 									<div class="xs-slide-overlay"></div>

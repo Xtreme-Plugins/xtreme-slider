@@ -8,10 +8,10 @@ global $wpdb;
 
 // Drop custom tables.
 // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange -- Uninstall cleanup.
-$wpdb->query( "DROP TABLE IF EXISTS {$wpdb->prefix}xs_slides" );
+$wpdb->query( "DROP TABLE IF EXISTS {$wpdb->prefix}xtrsl_slides" );
 // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange -- Uninstall cleanup.
-$wpdb->query( "DROP TABLE IF EXISTS {$wpdb->prefix}xs_sliders" );
+$wpdb->query( "DROP TABLE IF EXISTS {$wpdb->prefix}xtrsl_sliders" );
 
 // Remove options.
-delete_option( 'xs_settings' );
-delete_option( 'xs_db_version' );
+delete_option( 'xtrsl_settings' );
+delete_option( 'xtrsl_db_version' );

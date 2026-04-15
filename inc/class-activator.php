@@ -1,13 +1,13 @@
 <?php
 defined( 'ABSPATH' ) || exit;
 
-class XS_Activator {
+class Xtrsl_Activator {
 
 	public static function activate() {
 		self::create_tables();
 		self::set_defaults();
 		flush_rewrite_rules();
-		update_option( 'xs_db_version', XS_DB_VERSION );
+		update_option( 'xtrsl_db_version', XTRSL_DB_VERSION );
 	}
 
 	private static function create_tables() {
@@ -15,7 +15,7 @@ class XS_Activator {
 		$c = $wpdb->get_charset_collate();
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 
-		dbDelta( "CREATE TABLE {$wpdb->prefix}xs_sliders (
+		dbDelta( "CREATE TABLE {$wpdb->prefix}xtrsl_sliders (
 			id               BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
 			title            VARCHAR(255) NOT NULL DEFAULT '',
 			layout           ENUM('default','cool','3d') NOT NULL DEFAULT 'default',
@@ -24,7 +24,6 @@ class XS_Activator {
 			autoplay_speed   INT UNSIGNED NOT NULL DEFAULT 4000,
 			fullscreen       TINYINT(1) NOT NULL DEFAULT 0,
 			image_ratio      VARCHAR(10) NOT NULL DEFAULT '16:10',
-			fixed_height     SMALLINT UNSIGNED NOT NULL DEFAULT 0,
 			link_hover_color VARCHAR(7) NOT NULL DEFAULT '#ee212b',
 			gradient_start   VARCHAR(7) NOT NULL DEFAULT '#ec38bc',
 			gradient_end     VARCHAR(7) NOT NULL DEFAULT '#7303c0',
@@ -35,7 +34,7 @@ class XS_Activator {
 			KEY status (status)
 		) $c;" );
 
-		dbDelta( "CREATE TABLE {$wpdb->prefix}xs_slides (
+		dbDelta( "CREATE TABLE {$wpdb->prefix}xtrsl_slides (
 			id          BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
 			slider_id   BIGINT(20) UNSIGNED NOT NULL,
 			image_id    BIGINT(20) UNSIGNED NOT NULL DEFAULT 0,
@@ -53,8 +52,8 @@ class XS_Activator {
 	}
 
 	private static function set_defaults() {
-		if ( ! get_option( 'xs_settings' ) ) {
-			update_option( 'xs_settings', array(
+		if ( ! get_option( 'xtrsl_settings' ) ) {
+			update_option( 'xtrsl_settings', array(
 				'defaults' => array(
 					'layout'         => 'default',
 					'visible_count'  => 3,
@@ -67,22 +66,5 @@ class XS_Activator {
 				),
 			) );
 		}
-	}
-
-	public static function maybe_upgrade() {
-		if ( get_option( 'xs_db_version' ) === XS_DB_VERSION ) {
-			return;
-		}
-		self::create_tables();
-		// Ensure fixed_height column exists on live table for in-place upgrades.
-		global $wpdb;
-		$table = $wpdb->prefix . 'xs_sliders';
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter
-		$col = $wpdb->get_results( "SHOW COLUMNS FROM `{$table}` LIKE 'fixed_height'" );
-		if ( empty( $col ) ) {
-			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.DirectDatabaseQuery.SchemaChange,WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter
-			$wpdb->query( "ALTER TABLE `{$table}` ADD COLUMN `fixed_height` SMALLINT UNSIGNED NOT NULL DEFAULT 0 AFTER `image_ratio`" );
-		}
-		update_option( 'xs_db_version', XS_DB_VERSION );
 	}
 }

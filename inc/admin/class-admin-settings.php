@@ -1,13 +1,13 @@
 <?php
 defined( 'ABSPATH' ) || exit;
 
-class XS_Admin_Settings {
+class Xtrsl_Admin_Settings {
 
 	public static function render() {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only display flag, no data processing.
 		$saved = isset( $_GET['saved'] ) && '1' === sanitize_text_field( wp_unslash( $_GET['saved'] ) );
 
-		$s = get_option( 'xs_settings', array() );
+		$s = get_option( 'xtrsl_settings', array() );
 		$d = $s['defaults'] ?? array();
 
 		?>
@@ -15,7 +15,7 @@ class XS_Admin_Settings {
 			<div class="xs-admin-header">
 				<div class="xs-admin-logo">
 					<a href="https://xtremeplugins.com/plugins/xtreme-slider" target="_blank" rel="noopener noreferrer">
-						<img src="<?php echo esc_url( XS_PLUGIN_URL . 'assets/img/xtreme-slider.svg' ); ?>" alt="Xtreme Slider">
+						<img src="<?php echo esc_url( XTRSL_PLUGIN_URL . 'assets/img/xtreme-slider.webp' ); ?>" alt="Xtreme Slider">
 					</a>
 				</div>
 			</div>
@@ -25,7 +25,7 @@ class XS_Admin_Settings {
 			<?php endif; ?>
 
 			<form method="post">
-				<?php wp_nonce_field( 'xs_save_settings', 'xs_settings_nonce' ); ?>
+				<?php wp_nonce_field( 'xtrsl_save_settings', 'xtrsl_settings_nonce' ); ?>
 
 				<div class="xs-settings-layout">
 
@@ -96,7 +96,7 @@ class XS_Admin_Settings {
 	}
 
 	public static function process_save() {
-		if ( ! isset( $_POST['xs_settings_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['xs_settings_nonce'] ) ), 'xs_save_settings' ) ) {
+		if ( ! isset( $_POST['xtrsl_settings_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['xtrsl_settings_nonce'] ) ), 'xtrsl_save_settings' ) ) {
 			wp_die( esc_html__( 'Security check failed.', 'xtreme-slider' ) );
 		}
 
@@ -114,14 +114,14 @@ class XS_Admin_Settings {
 				'autoplay_speed' => max( 2000, min( 10000, absint( $raw['defaults']['autoplay_speed'] ?? 4000 ) ) ),
 				'fullscreen'     => isset( $raw['defaults']['fullscreen'] ) ? 1 : 0,
 				'image_ratio'    => in_array( $raw['defaults']['image_ratio'] ?? '', array( '16:10', '1:1' ), true ) ? sanitize_text_field( $raw['defaults']['image_ratio'] ) : '16:10',
-				'gradient_start' => xs_sanitize_hex_color( sanitize_text_field( $raw['defaults']['gradient_start'] ?? '#ec38bc' ) ),
-				'gradient_end'   => xs_sanitize_hex_color( sanitize_text_field( $raw['defaults']['gradient_end'] ?? '#7303c0' ) ),
+				'gradient_start' => xtrsl_sanitize_hex_color( sanitize_text_field( $raw['defaults']['gradient_start'] ?? '#ec38bc' ) ),
+				'gradient_end'   => xtrsl_sanitize_hex_color( sanitize_text_field( $raw['defaults']['gradient_end'] ?? '#7303c0' ) ),
 			),
 		);
 
-		update_option( 'xs_settings', $settings );
+		update_option( 'xtrsl_settings', $settings );
 
-		wp_safe_redirect( admin_url( 'admin.php?page=xs-settings&saved=1' ) );
+		wp_safe_redirect( admin_url( 'admin.php?page=xtrsl-settings&saved=1' ) );
 		exit;
 	}
 }

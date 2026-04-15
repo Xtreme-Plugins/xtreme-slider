@@ -2,27 +2,13 @@
 
 All notable changes to XtremeSlider are documented here.
 
-## [1.3.1] - 2026-04-05
-
-### Fixed
-- Gradient color fields now display the actual saved value after reload — removed `?: default` fallback from the input `value=` attribute that was masking the real DB value with the default color even when a different color (including white) was saved
-- Arrows no longer shown when slide count equals visible count (nothing to scroll)
-
-## [1.3.0] - 2026-04-05
-
-### Added
-- Fixed Height image ratio option — user sets a pixel height; width scales automatically to preserve natural image proportions
-- DB migration: `fixed_height` column added to `wp_xs_sliders` with live ALTER TABLE support for existing installs
+## [1.2.1] - 2026-04-15
 
 ### Changed
-- Sidebar sections compacted (reduced padding/gaps) so Save button is visible without scrolling
-- Fixed Height input now appears inline next to the Image Ratio select instead of occupying a separate row
-- Color pickers now initialized per-field with correct `defaultColor` so Clear button restores the field's own default (red for link hover, pink/purple for gradient) instead of resetting to white
-
-### Fixed
-- Colors saving as `#ffffff` when Clear was clicked — Iris wp-color-picker was defaulting to white with no `defaultColor` set
-- Hex color sanitizer now correctly accepts 3-digit shorthand (`#fff`) and expands to 6-digit
-- Color field defaults (`link_hover_color`, `gradient_start`, `gradient_end`) applied after sanitization instead of before, preventing wrong fallback on invalid input
+- Renamed all plugin-specific PHP constants, classes, functions, and option keys to use the unique `xtrsl_` prefix for WordPress.org compliance
+- Renamed database table prefixes from `xs_` to `xtrsl_` to avoid naming conflicts with other plugins
+- Removed donate link returning a redirect response
+- Added plugin author to contributors list in readme
 
 ## [1.2.0] - 2026-03-25
 

@@ -96,7 +96,7 @@ body.xs-admin-page #wpbody-content {
 }
 
 .xs-admin-logo img {
-    height: 48px;
+    height: 70px;
     width: auto;
     display: block;
 }
@@ -919,86 +919,4 @@ body.xs-admin-page ::-webkit-scrollbar-thumb:hover {
     height: 1px;
     background: linear-gradient(90deg, transparent, rgba(0, 0, 0, 0.08), transparent);
     margin: 16px 0;
-}
-
-/* ==========================================================================
-   19. SIDEBAR — compact overrides
-   Reduce padding/gaps in the sidebar only so Save button sits higher.
-   ========================================================================== */
-.xs-edit-sidebar .xs-form-section {
-    padding: 14px 16px;
-    margin-bottom: 10px;
-}
-
-.xs-edit-sidebar .xs-form-section h2 {
-    margin: 0 0 10px;
-    padding-bottom: 7px;
-}
-
-.xs-edit-sidebar .xs-form-row {
-    margin-bottom: 10px;
-}
-
-.xs-edit-sidebar .xs-form-row:last-child {
-    margin-bottom: 0;
-}
-
-.xs-edit-sidebar .xs-form-actions {
-    margin-top: 0;
-}
-
-/* Smaller color swatches in sidebar */
-.xs-edit-sidebar .xs-form-row .wp-color-result {
-    width: 30px !important;
-    height: 30px !important;
-    min-width: 30px !important;
-    min-height: 30px !important;
-    border-radius: 8px !important;
-}
-
-/* Shorter gradient preview */
-.xs-edit-sidebar .xs-gradient-preview {
-    height: 28px;
-    margin-top: 8px;
-}
-
-/* Autoplay speed: label + value on same line */
-.xs-edit-sidebar .xs-autoplay-speed label {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-}
-
-/* ==========================================================================
-   20. RATIO INLINE — select + height input on one row
-   ========================================================================== */
-.xs-ratio-inline {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.xs-ratio-inline select {
-    flex: 1;
-    min-width: 0;
-}
-
-.xs-fixed-height-inline {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    flex-shrink: 0;
-}
-
-.xs-fixed-height-inline .xs-input-sm {
-    width: 64px;
-}
-
-.xs-unit-label {
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--xs-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.3px;
-    white-space: nowrap;
 }
