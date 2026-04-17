@@ -51,6 +51,10 @@ Works in Elementor Shortcode widget, Gutenberg Shortcode block, Classic Editor, 
 
 == Support ==
 
+For documentation and more information visit:
+
+[https://xtremeplugins.com/plugins/xtreme-slider](https://xtremeplugins.com/plugins/xtreme-slider)
+
 Please submit bugs, patches, and feature requests to:
 
 [https://github.com/Xtreme-Plugins/xtreme-slider](https://github.com/Xtreme-Plugins/xtreme-slider)
