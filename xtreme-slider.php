@@ -3,7 +3,7 @@
  * Plugin Name: XtremeSlider
  * Plugin URI: https://xtremeplugins.com/plugins/xtreme-slider/
  * Description: Beautiful image slider with Simple and 3D layouts. Upload photos, generate shortcodes, and embed anywhere in WordPress or Elementor.
- * Version: 1.2.0
+ * Version: 1.4.1
  * Author: XtremePlugins
  * Author URI: https://xtremeplugins.com
  * License: GPL-2.0-or-later
@@ -16,8 +16,8 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'XS_VERSION',         '1.2.0' );
-define( 'XS_DB_VERSION',      '2' );
+define( 'XS_VERSION',         '1.4.1' );
+define( 'XS_DB_VERSION',      '8' );
 define( 'XS_PLUGIN_FILE',     __FILE__ );
 define( 'XS_PLUGIN_PATH',     plugin_dir_path( __FILE__ ) );
 define( 'XS_PLUGIN_URL',      plugin_dir_url( __FILE__ ) );

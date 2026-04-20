@@ -2,6 +2,40 @@
 
 All notable changes to XtremeSlider are documented here.
 
+## [1.3.4] - 2026-04-11
+
+### Added
+- `Black arrows` display option to switch slider navigation buttons to solid black circles with white icons
+
+### Fixed
+- Existing installs now auto-add the new `black_arrows` slider column during upgrade so the option saves cleanly without manual database work
+
+## [1.3.3] - 2026-04-11
+
+### Changed
+- Free mode is now limited to 2 total sliders, while premium keeps unlimited slider creation
+- Slider list header now disables `Add New Slider` once the free-tier slider cap is reached and shows current usage in the admin
+
+### Fixed
+- New slider creation is now blocked at both the admin UI layer and the save handler, preventing cached forms or direct links from bypassing the free-tier slider cap
+
+## [1.3.2] - 2026-04-11
+
+### Added
+- Premium license activation with site-bound validation, unlocking up to 50 slides per slider and up to 15 visible slides
+- Premium-only `Default (Original ratio)` image ratio option to preserve each image's natural aspect ratio
+- `Load Titles` editor action to fill slide titles from image filenames before saving
+- `Square corners` display option to switch slide images from rounded to sharp corners
+
+### Changed
+- Save feedback on the editor now uses a compact inline status pill beside the save button
+- Image ratio selectors in the editor and settings now adapt to the active license tier while preserving legacy premium values during edits
+
+### Fixed
+- Slider creation could fail when older installs were missing newer columns such as `title_shadow`; storage repair now self-heals schema drift before save
+- Slider saves are now transactional, preventing orphaned or partially-saved slide rows when a database write fails
+- Upgrade routines now add the new `square_corners` column on existing installs automatically
+
 ## [1.3.1] - 2026-04-05
 
 ### Fixed

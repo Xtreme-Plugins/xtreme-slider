@@ -167,6 +167,15 @@ body.xs-admin-page #wpbody-content {
     color: var(--xs-text);
 }
 
+.xs-btn-disabled,
+.xs-btn[disabled] {
+    pointer-events: none;
+    opacity: 0.55;
+    cursor: not-allowed;
+    transform: none !important;
+    box-shadow: var(--xs-neu-inset);
+}
+
 .xs-btn-lg { padding: 10px 22px; font-size: 13px; }
 .xs-btn-full { width: 100%; justify-content: center; }
 
@@ -201,6 +210,13 @@ body.xs-admin-page #wpbody-content {
     color: var(--xs-muted);
     font-size: 11px;
     margin: -8px 0 14px 0;
+}
+
+.xs-form-hint {
+    margin-top: 6px;
+    color: var(--xs-muted);
+    font-size: 10px;
+    line-height: 1.45;
 }
 
 .xs-form-row {
@@ -355,7 +371,52 @@ body.xs-admin-page #wpbody-content {
 }
 
 .xs-form-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
     margin-top: 20px;
+}
+
+.xs-form-actions .xs-btn-full {
+    flex: 1 1 220px;
+    width: auto;
+    min-width: 0;
+}
+
+.xs-save-feedback {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 42px;
+    padding: 0 14px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.55);
+    box-shadow: var(--xs-neu-raised-sm);
+    color: var(--xs-text);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+    backdrop-filter: blur(10px);
+}
+
+.xs-save-feedback::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: currentColor;
+    opacity: 0.9;
+}
+
+.xs-save-feedback.is-success {
+    color: #1f8f5f;
+}
+
+.xs-save-feedback.is-error {
+    color: #c2415b;
 }
 
 /* Title + Status row */
@@ -394,6 +455,87 @@ body.xs-admin-page #wpbody-content {
     max-width: 700px;
 }
 
+.xs-inline-plan {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-left: 8px;
+    padding: 3px 8px;
+    border-radius: 999px;
+    background: rgba(45, 206, 137, 0.12);
+    color: #1f8f5f;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    vertical-align: middle;
+}
+
+.xs-inline-plan::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+}
+
+.xs-license-section {
+    position: relative;
+}
+
+.xs-license-input {
+    letter-spacing: 0.06em;
+    font-family: var(--xs-font-mono) !important;
+}
+
+.xs-license-meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+}
+
+.xs-slider-limit-meta {
+    margin: -8px 0 20px;
+}
+
+.xs-plan-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 6px 10px;
+    border-radius: 999px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    box-shadow: var(--xs-neu-raised-sm);
+    background: rgba(255, 255, 255, 0.5);
+}
+
+.xs-plan-badge::before {
+    content: '';
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: currentColor;
+}
+
+.xs-plan-badge.is-premium {
+    color: #1f8f5f;
+}
+
+.xs-plan-badge.is-free {
+    color: #6b7280;
+}
+
+.xs-license-note {
+    color: var(--xs-muted);
+    font-size: 11px;
+    font-weight: 600;
+}
+
 /* ==========================================================================
    7. RADIO CARDS (Layout picker) — Neumorphic toggle buttons
    ========================================================================== */
@@ -405,6 +547,16 @@ body.xs-admin-page #wpbody-content {
 
 .xs-radio-cards-3 {
     grid-template-columns: 1fr 1fr 1fr;
+}
+
+.xs-radio-cards-4 {
+    grid-template-columns: 1fr 1fr;
+}
+
+@media (min-width: 600px) {
+    .xs-radio-cards-4 {
+        grid-template-columns: 1fr 1fr 1fr 1fr;
+    }
 }
 
 .xs-radio-card {
@@ -555,6 +707,53 @@ body.xs-admin-page #wpbody-content {
     font-weight: 400;
     color: var(--xs-muted);
     font-size: 13px;
+}
+
+.xs-slides-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.xs-slides-action-buttons {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.xs-action-feedback {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    min-height: 40px;
+    padding: 0 12px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.55);
+    box-shadow: var(--xs-neu-raised-sm);
+    color: #1f8f5f;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+}
+
+.xs-action-feedback::before {
+    content: '';
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: currentColor;
+    opacity: 0.9;
+}
+
+.xs-action-feedback.is-error {
+    color: #c2415b;
+}
+
+.xs-action-feedback[hidden] {
+    display: none !important;
 }
 
 /* ==========================================================================
@@ -822,6 +1021,12 @@ body.xs-admin-page #wpbody-content {
     top: 48px;
 }
 
+/* In the sidebar the picker opens upward so it never overlaps the Save button */
+.xs-edit-sidebar .xs-form-row .wp-picker-holder {
+    top: auto;
+    bottom: 48px;
+}
+
 .xs-form-row .wp-picker-holder .iris-picker {
     border-radius: 12px !important;
     overflow: hidden;
@@ -947,6 +1152,17 @@ body.xs-admin-page ::-webkit-scrollbar-thumb:hover {
     margin-top: 0;
 }
 
+@media (max-width: 960px) {
+    .xs-form-actions {
+        align-items: stretch;
+    }
+
+    .xs-save-feedback {
+        min-height: 38px;
+        justify-content: center;
+    }
+}
+
 /* Smaller color swatches in sidebar */
 .xs-edit-sidebar .xs-form-row .wp-color-result {
     width: 30px !important;
@@ -1001,4 +1217,124 @@ body.xs-admin-page ::-webkit-scrollbar-thumb:hover {
     text-transform: uppercase;
     letter-spacing: 0.3px;
     white-space: nowrap;
+}
+
+/* Options-specific slide grid tweaks (single column, image-left/html-right per slide) */
+.xs-slides-grid-options {
+    grid-template-columns: 1fr !important;
+}
+
+.xs-slides-grid-options .xs-slide-card {
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    gap: 16px;
+    align-items: stretch;
+}
+
+.xs-slides-grid-options .xs-slide-img {
+    width: 100%;
+    height: 100%;
+    min-height: 150px;
+    aspect-ratio: auto;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #f3f4f6;
+}
+
+.xs-slides-grid-options .xs-slide-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.xs-slides-grid-options .xs-slide-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 0;
+}
+
+.xs-field-options-only {
+    margin-top: 4px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.xs-html-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--xs-muted, #6b7280);
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    margin-top: 4px;
+}
+
+.xs-html-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 4px;
+}
+
+.xs-html-tabs {
+    display: inline-flex;
+    gap: 2px;
+    background: #f1f5f9;
+    border-radius: 8px;
+    padding: 3px;
+}
+
+.xs-html-tab {
+    border: none;
+    background: transparent;
+    color: #4b5563;
+    padding: 5px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+}
+
+.xs-html-tab:hover {
+    color: #0f172a;
+}
+
+.xs-html-tab.active {
+    background: #ffffff;
+    color: #0f172a;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.xs-html-preview {
+    width: 100%;
+    min-height: 280px;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    background: #ffffff;
+}
+
+.xs-slides-grid-options textarea.xs-slide-html {
+    width: 100%;
+    min-height: 160px;
+    font-family: "SF Mono", "Menlo", "Monaco", "Consolas", monospace;
+    font-size: 12px;
+    line-height: 1.5;
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+    background: #fafafa;
+    resize: vertical;
+}
+
+@media (max-width: 640px) {
+    .xs-slides-grid-options .xs-slide-card {
+        grid-template-columns: 1fr;
+    }
+    .xs-slides-grid-options .xs-slide-img {
+        aspect-ratio: 16 / 10;
+    }
 }

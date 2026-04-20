@@ -6,7 +6,7 @@
 <p align="center">A free, lightweight WordPress image slider plugin with three layout modes and zero external dependencies.</p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-1.2.0-blue" alt="Version 1.2.0">
+  <img src="https://img.shields.io/badge/version-1.3.4-blue" alt="Version 1.3.4">
   <img src="https://img.shields.io/badge/license-GPL--2.0-green" alt="GPL-2.0">
   <img src="https://img.shields.io/badge/WordPress-6.0%2B-blue?logo=wordpress" alt="WordPress 6.0+">
   <img src="https://img.shields.io/badge/PHP-7.4%2B-purple?logo=php" alt="PHP 7.4+">
@@ -43,7 +43,8 @@ CSS perspective slider with depth transforms, center slide prominent, adjacent s
 
 ## Features
 
-- Up to 10 slides per slider, 1–6 visible at once
+- Free mode: up to 2 sliders, 10 images per slider, and 1–6 visible slides
+- Premium mode: unlimited sliders, 50 images per slider, and up to 15 visible slides
 - Per-slide: title, caption, description, link URL
 - Image ratio: 16:10 (landscape) or 1:1 (square)
 - Autoplay with configurable speed (2–10s) and hover pause

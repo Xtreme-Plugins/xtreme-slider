@@ -3,7 +3,7 @@ Contributors: xtremeplugins
 Donate link: https://xtremeplugins.com/donate/xtreme-slider
 Tags: slider, image slider, carousel, responsive slider, 3d slider
 Tested up to: 6.9
-Stable tag: 1.2.0
+Stable tag: 1.4.1
 Requires at least: 6.0
 Requires PHP: 7.4
 License: GPLv2 or later
@@ -82,9 +82,10 @@ Yes. Fully standalone with zero external dependencies.
 
 Yes. Paste `[xtreme_slider id="X"]` into Elementor's Shortcode widget.
 
-= How many slides can I add? =
+= How many sliders and slides can I add? =
 
-Up to 10 slides per slider. Configure 1-6 visible at once.
+Free mode allows up to 2 sliders, up to 10 images per slider, and 1-6 visible slides at once.
+Premium unlocks unlimited sliders, up to 50 images per slider, and up to 15 visible slides at once.
 
 = Is the slider responsive? =
 
@@ -103,6 +104,33 @@ Yes. Paths like `/roofing` work. Internal links stay in same tab, external links
 Yes. `[xtreme_slider id="5" layout="3d" visible="2" autoplay="true" fullscreen="true"]`
 
 == Changelog ==
+
+= 1.4.1 - 20th April 2026 =
+* Added `Options` layout — clickable static cards that reveal per-slide HTML content in a detail panel below
+* Added inline Code / Preview tabs for editing the HTML content of each option
+* Added `Background Color` picker for the Options layout
+* Added `Background Color` picker for the 3D layout
+* Improved 3D layout to respect the configured visible slide count
+* Improved 3D layout with fixed-height image ratio to preserve natural aspect ratio
+* Preselect first card in the Options layout on load
+
+= 1.3.4 - 11th April 2026 =
+* Added `Black arrows` display option for solid black arrow circles with white icons
+* Added live upgrade support for the new `black_arrows` slider setting column
+
+= 1.3.3 - 11th April 2026 =
+* Limited free mode to 2 total sliders
+* Disabled new slider creation in the admin once the free slider cap is reached
+* Blocked direct/cached create requests in the save handler so the free slider limit cannot be bypassed
+
+= 1.3.2 - 11th April 2026 =
+* Added premium license activation with up to 50 images per slider and up to 15 visible slides
+* Added premium-only `Default (Original ratio)` image ratio option
+* Added `Load Titles` action to fill slide titles from image filenames
+* Added `Square corners` display option for sharp image corners
+* Improved editor save feedback with a compact inline status pill
+* Fixed save failures on installs missing newer slider-table columns
+* Fixed partial save/orphan slide rows by making slider saves transactional
 
 = 1.2.0 - 25th March 2026 =
 * Added image ratio option: 16:10 (landscape) or 1:1 (square) per slider
@@ -133,7 +161,8 @@ Yes. `[xtreme_slider id="5" layout="3d" visible="2" autoplay="true" fullscreen="
 * Initial production release
 * Default layout — editorial full-bleed slider with peek effect and infinite loop
 * 3D layout — perspective slider with depth transforms and glassmorphism arrows
-* Up to 10 slides per slider, 1-6 visible at once
+* Free mode: up to 2 sliders, 10 images per slider, and 1-6 visible slides
+* Premium mode: unlimited sliders, 50 images per slider, and up to 15 visible slides
 * Per-slide fields: title, caption, description, link URL
 * Relative and absolute link support
 * Image hover zoom effect

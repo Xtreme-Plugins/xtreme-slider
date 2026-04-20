@@ -4,7 +4,14 @@ defined( 'ABSPATH' ) || exit;
 class XS_Admin_Sliders {
 
 	public static function render() {
-		$sliders = xs_get_all_sliders();
+		$sliders           = xs_get_all_sliders();
+		$is_premium        = xs_is_premium_license_active();
+		$slider_limit      = xs_get_max_slider_count();
+		$slider_limit_label = xs_get_slider_limit_label( $is_premium );
+		$total_sliders     = xs_count_all_sliders();
+		$can_create_slider = xs_can_create_slider();
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only display flag, no data processing.
+		$limit_error       = isset( $_GET['xs_error'] ) && 'slider_limit' === sanitize_text_field( wp_unslash( $_GET['xs_error'] ) );
 		?>
 		<div class="wrap xs-admin-wrap">
 			<div class="xs-admin-header">
@@ -13,8 +20,33 @@ class XS_Admin_Sliders {
 						<img src="<?php echo esc_url( XS_PLUGIN_URL . 'assets/img/xtreme-slider.svg' ); ?>" alt="Xtreme Slider">
 					</a>
 				</div>
-				<a href="<?php echo esc_url( admin_url( 'admin.php?page=xs-edit' ) ); ?>" class="xs-btn xs-btn-primary"><?php echo '+ ' . esc_html__( 'Add New Slider', 'xtreme-slider' ); ?></a>
+				<?php if ( $can_create_slider ) : ?>
+					<a href="<?php echo esc_url( admin_url( 'admin.php?page=xs-edit' ) ); ?>" class="xs-btn xs-btn-primary"><?php echo '+ ' . esc_html__( 'Add New Slider', 'xtreme-slider' ); ?></a>
+				<?php else : ?>
+					<span class="xs-btn xs-btn-primary xs-btn-disabled" aria-disabled="true"><?php echo '+ ' . esc_html__( 'Add New Slider', 'xtreme-slider' ); ?></span>
+				<?php endif; ?>
 			</div>
+
+			<?php if ( ! $is_premium ) : ?>
+				<div class="xs-license-meta xs-slider-limit-meta">
+					<span class="xs-plan-badge is-free"><?php esc_html_e( 'Free Mode', 'xtreme-slider' ); ?></span>
+					<span class="xs-license-note">
+						<?php
+						printf(
+							/* translators: 1: slider limit label, 2: used slider count */
+							esc_html__( '%1$s available in free mode. %2$d used.', 'xtreme-slider' ),
+							esc_html( $slider_limit_label ),
+							(int) $total_sliders
+						);
+						?>
+					</span>
+					<?php if ( $limit_error || ! $can_create_slider ) : ?>
+						<span class="xs-save-feedback is-error" title="<?php esc_attr_e( 'Free mode is limited to 2 sliders. Delete one or activate premium to create another.', 'xtreme-slider' ); ?>" role="status" aria-live="polite">
+							<span class="xs-save-feedback-text"><?php esc_html_e( 'Limit reached', 'xtreme-slider' ); ?></span>
+						</span>
+					<?php endif; ?>
+				</div>
+			<?php endif; ?>
 
 			<?php if ( empty( $sliders ) ) : ?>
 				<div class="xs-empty-state">
@@ -23,7 +55,11 @@ class XS_Admin_Sliders {
 					</div>
 					<h2><?php esc_html_e( 'No sliders yet', 'xtreme-slider' ); ?></h2>
 					<p><?php esc_html_e( 'Create your first slider to get started.', 'xtreme-slider' ); ?></p>
-					<a href="<?php echo esc_url( admin_url( 'admin.php?page=xs-edit' ) ); ?>" class="xs-btn xs-btn-primary xs-btn-lg"><?php esc_html_e( 'Create Slider', 'xtreme-slider' ); ?></a>
+					<?php if ( $can_create_slider ) : ?>
+						<a href="<?php echo esc_url( admin_url( 'admin.php?page=xs-edit' ) ); ?>" class="xs-btn xs-btn-primary xs-btn-lg"><?php esc_html_e( 'Create Slider', 'xtreme-slider' ); ?></a>
+					<?php else : ?>
+						<span class="xs-btn xs-btn-primary xs-btn-lg xs-btn-disabled" aria-disabled="true"><?php esc_html_e( 'Create Slider', 'xtreme-slider' ); ?></span>
+					<?php endif; ?>
 				</div>
 			<?php else : ?>
 				<table class="xs-table">
