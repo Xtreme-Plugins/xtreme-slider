@@ -1,5 +1,5 @@
 === XtremeSlider ===
-Contributors: xtremeplugins, loanpartnership
+Contributors: loanpartnership
 Tags: slider, image slider, carousel, responsive slider, 3d slider
 Tested up to: 6.9
 Stable tag: 1.2.1
