@@ -149,15 +149,31 @@
 
         // Responsive recalc
         window.addEventListener('resize', function () {
-            if (self.layout === '3d') {
-                self.update3D();
-            } else if (self.layout === 'default') {
-                self.updateDefault();
-            } else {
-                self.updateCool();
-            }
-            self.updateArrowVisibility();
+            self.recalcLayout();
         });
+
+        // Cool-fixed mode derives slide widths from natural image dimensions, so
+        // arrow visibility and track offsets aren't reliable until images have
+        // loaded. Re-run the layout each time a slide image loads, plus once on
+        // window.load as a final safety net.
+        var imgs = this.el.querySelectorAll('.xs-slide-image');
+        imgs.forEach(function (img) {
+            if (img.complete && img.naturalWidth > 0) return;
+            img.addEventListener('load', function () { self.recalcLayout(); }, { once: true });
+            img.addEventListener('error', function () { self.recalcLayout(); }, { once: true });
+        });
+        window.addEventListener('load', function () { self.recalcLayout(); });
+    };
+
+    XtremeSlider.prototype.recalcLayout = function () {
+        if (this.layout === '3d') {
+            this.update3D();
+        } else if (this.layout === 'default') {
+            this.updateDefault();
+        } else {
+            this.updateCool();
+        }
+        this.updateArrowVisibility();
     };
 
     /* ======================================================================
@@ -275,6 +291,16 @@
     };
 
     XtremeSlider.prototype.updateCool = function () {
+        if (this.fixedHeight > 0) {
+            // Fixed-height ratio: clear any forced widths so each slide keeps the
+            // natural width derived from its image aspect ratio at the fixed height.
+            this.slides.forEach(function (slide) {
+                slide.style.width = '';
+            });
+            this.moveCool();
+            return;
+        }
+
         var viewport = this.el.querySelector('.xs-slider-viewport');
         var vpWidth  = viewport.offsetWidth;
         var vis      = this.getResponsiveVisible();
@@ -288,11 +314,19 @@
     };
 
     XtremeSlider.prototype.moveCool = function () {
-        var viewport = this.el.querySelector('.xs-slider-viewport');
-        var vpWidth  = viewport.offsetWidth;
-        var vis      = this.getResponsiveVisible();
-        var slideW   = vpWidth / vis;
-        var offset   = -(this.current * slideW);
+        var offset;
+        if (this.fixedHeight > 0) {
+            offset = 0;
+            for (var i = 0; i < this.current && i < this.slides.length; i++) {
+                offset -= this.slides[i].offsetWidth;
+            }
+        } else {
+            var viewport = this.el.querySelector('.xs-slider-viewport');
+            var vpWidth  = viewport.offsetWidth;
+            var vis      = this.getResponsiveVisible();
+            var slideW   = vpWidth / vis;
+            offset       = -(this.current * slideW);
+        }
 
         this.track.style.transform = 'translateX(' + offset + 'px)';
         this.updateDots();
@@ -309,6 +343,24 @@
     XtremeSlider.prototype.getMaxPage = function () {
         if (this.layout === '3d') {
             return this.total - 1;
+        }
+        if (this.layout === 'cool' && this.fixedHeight > 0) {
+            var viewport = this.el.querySelector('.xs-slider-viewport');
+            var vpWidth = viewport ? viewport.offsetWidth : 0;
+            var totalWidth = 0;
+            for (var i = 0; i < this.slides.length; i++) {
+                totalWidth += this.slides[i].offsetWidth;
+            }
+            if (totalWidth <= vpWidth) return 0;
+            // Smallest index from which the remaining slides still overflow the viewport.
+            var sum = 0;
+            for (var j = this.slides.length - 1; j >= 0; j--) {
+                sum += this.slides[j].offsetWidth;
+                if (sum > vpWidth) {
+                    return j + 1;
+                }
+            }
+            return 0;
         }
         var vis = this.getResponsiveVisible();
         return Math.max(0, this.total - vis);

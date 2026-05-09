@@ -619,6 +619,26 @@
     object-fit: cover;
 }
 
+/* Cool layout — fixed-height: keep each image's natural aspect ratio at the
+   given height instead of cropping to a uniform slot width. */
+.xs-layout-cool.xs-ratio-fixed .xs-slide {
+    width: auto !important;
+    flex: 0 0 auto;
+}
+.xs-layout-cool.xs-ratio-fixed .xs-slide-inner {
+    height: var(--xs-fixed-height, 340px);
+    width: auto;
+    aspect-ratio: unset;
+}
+.xs-layout-cool.xs-ratio-fixed .xs-slide-inner img,
+.xs-layout-cool.xs-ratio-fixed .xs-slide-image {
+    width: auto;
+    height: 100%;
+    object-fit: contain;
+    object-position: center;
+    display: block;
+}
+
 .xs-ratio-default .xs-slide-image {
     aspect-ratio: auto !important;
     height: auto !important;

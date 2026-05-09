@@ -2,6 +2,18 @@
 
 All notable changes to XtremeSlider are documented here.
 
+## [1.4.3] - 2026-05-09
+
+### Fixed
+- Cool layout fixed-height sliders lost their navigation arrows when more than one slider was on the page. In fixed-height mode each slide's width is derived from the natural width of its (lazy-loaded) image, but `getMaxPage` was measuring `slide.offsetWidth` at `DOMContentLoaded` — before images had loaded — so the total measured width was 0, max-page was 0, and `updateArrowVisibility()` hid both arrows. The first slider on the page typically used non-fixed ratio (computed slot widths) and so was unaffected, which made the bug look like a "second slider" issue. Layout + arrow visibility now re-run as each slide image fires `load`, plus once on `window.load` as a fallback.
+- Extracted the resize/load recalculation into a single `recalcLayout()` method so `update*` and `updateArrowVisibility()` can't drift out of sync.
+
+## [1.4.2] - 2026-05-09
+
+### Fixed
+- Cool layout with `Fixed Height` image ratio was cropping wider images because all slides were forced to a uniform slot width (`viewport / visible`). Slides now keep each image's natural width derived from its aspect ratio at the configured fixed height, so doors of different widths (e.g. 204×450 vs 294×450) display in their proper proportions instead of being clipped by `object-fit: cover`
+- Cool layout navigation in fixed-height mode now advances by the per-slide width (cumulative offset) instead of a uniform page step, and `getMaxPage` accounts for variable slide widths so the last slides remain reachable
+
 ## [1.3.4] - 2026-04-11
 
 ### Added
