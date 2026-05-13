@@ -2,6 +2,12 @@
 
 All notable changes to XtremeSlider are documented here.
 
+## [1.4.4] - 2026-05-13
+
+### Changed
+- WordPress.org Plugin Check compliance pass. Added `translators:` comments for `__()` calls containing placeholders (`%d titles loaded` in `class-admin.php`, `Slide %d` fallback in the Options renderer). Wrapped `$_POST['image_ratio']` in `sanitize_text_field()` before passing to the custom `xs_sanitize_image_ratio()` validator so the static-analysis sniff recognises the sanitization step. Replaced the inline `phpcs:ignore` on the multi-line `wp_unslash( $_POST['slides']['html_content'] )` expression with a `phpcs:disable/enable` block; per-item `wp_kses_post()` still runs inside the loop. Gated `error_log()` in the save-rollback path behind `WP_DEBUG && WP_DEBUG_LOG` so it only fires in dev.
+- Description text in `readme.txt` updated from "three layout modes" to "four layout modes" — the Options layout shipped in 1.4.1 but the description was never refreshed.
+
 ## [1.4.3] - 2026-05-09
 
 ### Fixed

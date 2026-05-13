@@ -3,7 +3,7 @@ Contributors: xtremeplugins
 Donate link: https://xtremeplugins.com/donate/xtreme-slider
 Tags: slider, image slider, carousel, responsive slider, 3d slider
 Tested up to: 6.9
-Stable tag: 1.4.3
+Stable tag: 1.4.4
 Requires at least: 6.0
 Requires PHP: 7.4
 License: GPLv2 or later
@@ -108,6 +108,10 @@ Yes. Paths like `/roofing` work. Internal links stay in same tab, external links
 Yes. `[xtreme_slider id="5" layout="3d" visible="2" autoplay="true" fullscreen="true"]`
 
 == Changelog ==
+
+= 1.4.4 - 13th May 2026 =
+* WordPress.org Plugin Check compliance pass — added translators: comments for placeholder strings, tightened input sanitization on the slider editor, gated error_log() output behind WP_DEBUG so production logs stay clean
+* Description text refreshed to cover the Options layout (added in 1.4.1) — no behavioural change
 
 = 1.4.3 - 9th May 2026 =
 * Fixed Cool layout fixed-height sliders losing navigation arrows when more than one slider was on the page — slide widths are derived from natural image dimensions, but lazy-loaded images had not finished loading at init time, so the max-page calculation read width 0 and hid the arrows. Layout and arrow visibility now re-run as each slide image loads, plus once on `window.load`
