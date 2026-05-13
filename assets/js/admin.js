@@ -5,23 +5,60 @@
     'use strict';
 
     $(document).ready(function () {
+        /* ==================================================================
+           0. One-Time Status Message URL Cleanup
+           ================================================================== */
+        if (window.history && window.history.replaceState && window.URL) {
+            var url = new URL(window.location.href);
+            var hasSaved = url.searchParams.has('saved');
+            var hasError = url.searchParams.has('xs_error');
+
+            if (hasSaved || hasError) {
+                url.searchParams.delete('saved');
+                url.searchParams.delete('xs_error');
+                window.history.replaceState({}, document.title, url.toString());
+            }
+        }
 
         /* ==================================================================
            1. Layout Radio Cards
            ================================================================== */
-        $('.xs-radio-card input[type="radio"]').on('change', function () {
-            var $cards = $(this).closest('.xs-radio-cards');
-            $cards.find('.xs-radio-card').removeClass('active');
-            $(this).closest('.xs-radio-card').addClass('active');
-
-            // Show gradient section only for Simple layout
-            var val = $(this).val();
+        function applyLayoutVisibility(val) {
             if (val === 'cool') {
                 $('#xs-gradient-section').slideDown(200);
             } else {
                 $('#xs-gradient-section').slideUp(200);
             }
+            if (val === '3d') {
+                $('#xs-3d-bg-section').slideDown(200);
+            } else {
+                $('#xs-3d-bg-section').slideUp(200);
+            }
+            if (val === 'options') {
+                $('.xs-hide-on-options').hide();
+                $('.xs-field-non-options').hide();
+                $('.xs-field-options-only').show();
+                $('#xs-slides-grid').addClass('xs-slides-grid-options');
+                $('#xs-options-bg-section').slideDown(200);
+            } else {
+                $('.xs-hide-on-options').show();
+                $('.xs-field-non-options').show();
+                $('.xs-field-options-only').hide();
+                $('#xs-slides-grid').removeClass('xs-slides-grid-options');
+                $('#xs-options-bg-section').slideUp(200);
+            }
+        }
+
+        $('.xs-radio-card input[type="radio"]').on('change', function () {
+            var $cards = $(this).closest('.xs-radio-cards');
+            $cards.find('.xs-radio-card').removeClass('active');
+            $(this).closest('.xs-radio-card').addClass('active');
+
+            applyLayoutVisibility($(this).val());
         });
+
+        // Apply initial layout visibility on page load
+        applyLayoutVisibility($('input[name="layout"]:checked').val());
 
         /* ==================================================================
            2. Autoplay Toggle
@@ -46,6 +83,7 @@
            4. Media Uploader — Add Slides
            ================================================================== */
         var mediaFrame;
+        var loadTitlesFeedbackTimer;
 
         $('#xs-add-slides').on('click', function (e) {
             e.preventDefault();
@@ -77,16 +115,28 @@
                 $.each(attachments.slice(0, remaining), function (i, att) {
                     var imgUrl = att.sizes && att.sizes.medium ? att.sizes.medium.url : att.url;
                     var fullUrl = att.url;
+                    var fileName = att.filename || getFilenameFromUrl(fullUrl);
 
-                    var card = '<div class="xs-slide-card" data-image-id="' + att.id + '">' +
+                    var card = '<div class="xs-slide-card" data-image-id="' + att.id + '" data-image-filename="' + escapeAttribute(fileName) + '">' +
                         '<div class="xs-slide-img"><img src="' + imgUrl + '" alt=""></div>' +
                         '<div class="xs-slide-fields">' +
                         '<input type="hidden" name="slides[image_id][]" value="' + att.id + '">' +
                         '<input type="hidden" name="slides[image_url][]" value="' + fullUrl + '">' +
                         '<input type="text" name="slides[title][]" value="" placeholder="Title (on image)">' +
                         '<input type="text" name="slides[caption][]" value="" placeholder="Caption (below image)">' +
-                        '<input type="text" name="slides[description][]" value="" placeholder="Description (optional)">' +
-                        '<input type="text" name="slides[link_url][]" value="" placeholder="Link URL (optional)">' +
+                        '<input type="text" class="xs-field-non-options" name="slides[description][]" value="" placeholder="Description (optional)">' +
+                        '<input type="text" class="xs-field-non-options" name="slides[link_url][]" value="" placeholder="Link URL (optional)">' +
+                        '<div class="xs-field-options-only">' +
+                            '<div class="xs-html-toolbar">' +
+                                '<label class="xs-html-label">HTML Content</label>' +
+                                '<div class="xs-html-tabs">' +
+                                    '<button type="button" class="xs-html-tab active" data-mode="text">Code</button>' +
+                                    '<button type="button" class="xs-html-tab" data-mode="preview">Preview</button>' +
+                                '</div>' +
+                            '</div>' +
+                            '<textarea id="xs-html-editor-' + att.id + '-' + Date.now() + '" class="xs-slide-html" name="slides[html_content][]" rows="12" placeholder="Paste HTML here. It will be shown when this option is clicked on the frontend."></textarea>' +
+                            '<iframe class="xs-html-preview" style="display:none;"></iframe>' +
+                        '</div>' +
                         '</div>' +
                         '<button type="button" class="xs-slide-remove" title="Remove slide">&times;</button>' +
                         '</div>';
@@ -94,6 +144,8 @@
                     $('#xs-slides-grid').append(card);
                 });
 
+                // Re-apply visibility so fields in newly added slides match current layout
+                applyLayoutVisibility($('input[name="layout"]:checked').val());
                 updateSlideCount();
             });
 
@@ -138,10 +190,104 @@
             } else {
                 $('#xs-add-slides').prop('disabled', false);
             }
+
+            $('#xs-load-titles').prop('disabled', count === 0);
         }
 
         /* ==================================================================
-           8. Copy Shortcode
+           8. Load Titles From Filenames
+           ================================================================== */
+        $('#xs-load-titles').on('click', function (e) {
+            e.preventDefault();
+
+            var $cards = $('#xs-slides-grid .xs-slide-card');
+
+            if (!$cards.length) {
+                showLoadTitlesFeedback(xsAdmin.loadTitles.empty, true);
+                return;
+            }
+
+            var updated = 0;
+
+            $cards.each(function () {
+                var $card = $(this);
+                var fileName = $card.attr('data-image-filename') || getFilenameFromUrl($card.find('input[name="slides[image_url][]"]').val()) || getFilenameFromUrl($card.find('.xs-slide-img img').attr('src'));
+                var title = getTitleFromFilename(fileName);
+
+                if (!title) {
+                    return;
+                }
+
+                $card.find('input[name="slides[title][]"]').val(title);
+                updated++;
+            });
+
+            if (!updated) {
+                showLoadTitlesFeedback(xsAdmin.loadTitles.none, true);
+                return;
+            }
+
+            var message = updated === 1 ? xsAdmin.loadTitles.single : xsAdmin.loadTitles.multiple.replace('%d', updated);
+            showLoadTitlesFeedback(message, false);
+        });
+
+        function getFilenameFromUrl(url) {
+            var cleanUrl = String(url || '').trim();
+
+            if (!cleanUrl) {
+                return '';
+            }
+
+            cleanUrl = cleanUrl.split('#')[0].split('?')[0];
+
+            var fileName = cleanUrl.substring(cleanUrl.lastIndexOf('/') + 1);
+
+            if (!fileName) {
+                return '';
+            }
+
+            try {
+                fileName = decodeURIComponent(fileName);
+            } catch (error) {
+                // Keep the raw filename if decoding fails.
+            }
+
+            return fileName.trim();
+        }
+
+        function getTitleFromFilename(fileName) {
+            return String(fileName || '').replace(/\.[^.]+$/, '').trim();
+        }
+
+        function showLoadTitlesFeedback(message, isError) {
+            var $feedback = $('#xs-load-titles-feedback');
+
+            if (!$feedback.length) {
+                return;
+            }
+
+            window.clearTimeout(loadTitlesFeedbackTimer);
+
+            $feedback
+                .text(message)
+                .toggleClass('is-error', !!isError)
+                .attr('hidden', false);
+
+            loadTitlesFeedbackTimer = window.setTimeout(function () {
+                $feedback.attr('hidden', true).removeClass('is-error').text('');
+            }, 2400);
+        }
+
+        function escapeAttribute(value) {
+            return String(value || '')
+                .replace(/&/g, '&amp;')
+                .replace(/"/g, '&quot;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;');
+        }
+
+        /* ==================================================================
+           9. Copy Shortcode
            ================================================================== */
         $(document).on('click', '.xs-copy-btn', function () {
             var $btn = $(this);
@@ -201,6 +347,8 @@
                 $btn.addClass('xs-btn-saving');
             }
         });
+
+        updateSlideCount();
 
     });
 

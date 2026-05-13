@@ -16,6 +16,27 @@ class Xtrsl_Admin_Sliders {
 				<a href="<?php echo esc_url( admin_url( 'admin.php?page=xtrsl-edit' ) ); ?>" class="xs-btn xs-btn-primary"><?php echo '+ ' . esc_html__( 'Add New Slider', 'xtreme-slider' ); ?></a>
 			</div>
 
+			<?php if ( ! $is_premium ) : ?>
+				<div class="xs-license-meta xs-slider-limit-meta">
+					<span class="xs-plan-badge is-free"><?php esc_html_e( 'Free Mode', 'xtreme-slider' ); ?></span>
+					<span class="xs-license-note">
+						<?php
+						printf(
+							/* translators: 1: slider limit label, 2: used slider count */
+							esc_html__( '%1$s available in free mode. %2$d used.', 'xtreme-slider' ),
+							esc_html( $slider_limit_label ),
+							(int) $total_sliders
+						);
+						?>
+					</span>
+					<?php if ( $limit_error || ! $can_create_slider ) : ?>
+						<span class="xs-save-feedback is-error" title="<?php esc_attr_e( 'Free mode is limited to 2 sliders. Delete one or activate premium to create another.', 'xtreme-slider' ); ?>" role="status" aria-live="polite">
+							<span class="xs-save-feedback-text"><?php esc_html_e( 'Limit reached', 'xtreme-slider' ); ?></span>
+						</span>
+					<?php endif; ?>
+				</div>
+			<?php endif; ?>
+
 			<?php if ( empty( $sliders ) ) : ?>
 				<div class="xs-empty-state">
 					<div class="xs-empty-icon">

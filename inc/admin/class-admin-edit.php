@@ -4,10 +4,29 @@ defined( 'ABSPATH' ) || exit;
 class Xtrsl_Admin_Edit {
 
 	public static function render() {
+		if ( class_exists( 'XS_Activator' ) ) {
+			XS_Activator::maybe_upgrade();
+		}
+
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only display parameter, no data processing.
 		$slider_id = isset( $_GET['slider_id'] ) ? absint( wp_unslash( $_GET['slider_id'] ) ) : 0;
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only display flag, no data processing.
 		$saved     = isset( $_GET['saved'] ) && '1' === sanitize_text_field( wp_unslash( $_GET['saved'] ) );
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only display flag, no data processing.
+		$save_error = isset( $_GET['xs_error'] ) ? sanitize_text_field( wp_unslash( $_GET['xs_error'] ) ) : '';
+		$save_feedback_text  = '';
+		$save_feedback_class = '';
+		$save_feedback_title = '';
+
+		if ( $saved ) {
+			$save_feedback_text  = __( 'Saved', 'xtreme-slider' );
+			$save_feedback_class = 'is-success';
+			$save_feedback_title = __( 'Slider saved.', 'xtreme-slider' );
+		} elseif ( 'save_failed' === $save_error ) {
+			$save_feedback_text  = __( 'Save failed', 'xtreme-slider' );
+			$save_feedback_class = 'is-error';
+			$save_feedback_title = __( 'Slider could not be saved. The plugin storage was repaired, so please try again.', 'xtreme-slider' );
+		}
 
 		$slider = $slider_id ? xtrsl_get_slider( $slider_id ) : null;
 		$slides = $slider_id ? xtrsl_get_slides( $slider_id ) : array();
@@ -31,6 +50,13 @@ class Xtrsl_Admin_Edit {
 			);
 		}
 
+		$max_slides          = xs_get_edit_max_slides( $slider_id );
+		$max_visible_slides  = xs_get_edit_max_visible_slides( $slider_id );
+		$is_premium          = xs_is_premium_license_active();
+		$slider_limit        = xs_get_max_slider_count();
+		$can_create_slider   = ! $is_new || xs_can_create_slider();
+		$image_ratio_options = xs_get_image_ratio_options( 'editor', $slider->image_ratio ?? '16:10', $is_premium );
+
 		$speed_seconds = intval( $slider->autoplay_speed ) / 1000;
 		?>
 		<div class="wrap xs-admin-wrap">
@@ -42,6 +68,32 @@ class Xtrsl_Admin_Edit {
 				</div>
 				<a href="<?php echo esc_url( admin_url( 'admin.php?page=xtreme-slider' ) ); ?>" class="xs-btn xs-btn-secondary"><?php echo '&larr; ' . esc_html__( 'All Sliders', 'xtreme-slider' ); ?></a>
 			</div>
+
+			<?php if ( $is_new && ! $can_create_slider ) : ?>
+				<div class="xs-empty-state">
+					<div class="xs-empty-icon">
+						<svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><path d="M12 7v6"/><circle cx="12" cy="16.5" r="1"/></svg>
+					</div>
+					<h2><?php esc_html_e( 'Free slider limit reached', 'xtreme-slider' ); ?></h2>
+					<p>
+						<?php
+						printf(
+							/* translators: %d: free slider count limit */
+							esc_html__( 'Free mode allows up to %d sliders. Delete one of your existing sliders or activate premium to create another.', 'xtreme-slider' ),
+							(int) $slider_limit
+						);
+						?>
+					</p>
+					<div class="xs-form-actions">
+						<a href="<?php echo esc_url( admin_url( 'admin.php?page=xtreme-slider' ) ); ?>" class="xs-btn xs-btn-primary"><?php esc_html_e( 'View Sliders', 'xtreme-slider' ); ?></a>
+						<a href="<?php echo esc_url( admin_url( 'admin.php?page=xs-settings' ) ); ?>" class="xs-btn xs-btn-secondary"><?php esc_html_e( 'Open Settings', 'xtreme-slider' ); ?></a>
+					</div>
+				</div>
+			</div>
+				<?php
+				return;
+			endif;
+			?>
 
 			<form method="post" id="xs-edit-form">
 				<?php wp_nonce_field( 'xtrsl_save_slider', 'xtrsl_edit_nonce' ); ?>
@@ -71,12 +123,27 @@ class Xtrsl_Admin_Edit {
 
 						<!-- Slides -->
 						<div class="xs-form-section">
-							<h2><?php esc_html_e( 'Slides', 'xtreme-slider' ); ?> <span class="xs-slide-counter">(<span id="xs-slide-count"><?php echo count( $slides ); ?></span> / 10)</span></h2>
-							<p class="xs-form-desc"><?php esc_html_e( 'Add up to 10 images. Drag to reorder. The number of visible slides per view is configured in the sidebar.', 'xtreme-slider' ); ?></p>
+							<h2><?php esc_html_e( 'Slides', 'xtreme-slider' ); ?> <span class="xs-slide-counter">(<span id="xs-slide-count"><?php echo count( $slides ); ?></span> / <?php echo esc_html( $max_slides ); ?>)</span></h2>
+							<p class="xs-form-desc">
+								<?php
+								printf(
+									/* translators: %d: max slide count */
+									esc_html__( 'Add up to %d images. Drag to reorder. The number of visible slides per view is configured in the sidebar.', 'xtreme-slider' ),
+									(int) $max_slides
+								);
+								?>
+								<?php if ( $is_premium ) : ?>
+									<span class="xs-inline-plan xs-inline-plan-premium"><?php esc_html_e( 'Premium 50-image limit active.', 'xtreme-slider' ); ?></span>
+								<?php endif; ?>
+							</p>
 
 							<div id="xs-slides-grid" class="xs-slides-grid">
 								<?php foreach ( $slides as $slide ) : ?>
-									<div class="xs-slide-card" data-image-id="<?php echo esc_attr( $slide->image_id ); ?>">
+									<?php
+									$image_path     = wp_parse_url( $slide->image_url, PHP_URL_PATH );
+									$image_filename = $image_path ? rawurldecode( wp_basename( $image_path ) ) : '';
+									?>
+									<div class="xs-slide-card" data-image-id="<?php echo esc_attr( $slide->image_id ); ?>" data-image-filename="<?php echo esc_attr( $image_filename ); ?>">
 										<div class="xs-slide-img">
 											<img src="<?php echo esc_url( $slide->image_url ); ?>" alt="">
 										</div>
@@ -85,18 +152,38 @@ class Xtrsl_Admin_Edit {
 											<input type="hidden" name="slides[image_url][]" value="<?php echo esc_url( $slide->image_url ); ?>">
 											<input type="text" name="slides[title][]" value="<?php echo esc_attr( $slide->title ); ?>" placeholder="<?php esc_attr_e( 'Title (on image)', 'xtreme-slider' ); ?>">
 											<input type="text" name="slides[caption][]" value="<?php echo esc_attr( $slide->caption ?? '' ); ?>" placeholder="<?php esc_attr_e( 'Caption (below image)', 'xtreme-slider' ); ?>">
-											<input type="text" name="slides[description][]" value="<?php echo esc_attr( $slide->description ?? '' ); ?>" placeholder="<?php esc_attr_e( 'Description (optional)', 'xtreme-slider' ); ?>">
-											<input type="text" name="slides[link_url][]" value="<?php echo esc_attr( $slide->link_url ); ?>" placeholder="<?php esc_attr_e( 'Link URL (optional)', 'xtreme-slider' ); ?>">
+											<input type="text" class="xs-field-non-options" name="slides[description][]" value="<?php echo esc_attr( $slide->description ?? '' ); ?>" placeholder="<?php esc_attr_e( 'Description (optional)', 'xtreme-slider' ); ?>">
+											<input type="text" class="xs-field-non-options" name="slides[link_url][]" value="<?php echo esc_attr( $slide->link_url ); ?>" placeholder="<?php esc_attr_e( 'Link URL (optional)', 'xtreme-slider' ); ?>">
+											<div class="xs-field-options-only">
+												<div class="xs-html-toolbar">
+													<label class="xs-html-label"><?php esc_html_e( 'HTML Content', 'xtreme-slider' ); ?></label>
+													<div class="xs-html-tabs">
+														<button type="button" class="xs-html-tab active" data-mode="text"><?php esc_html_e( 'Code', 'xtreme-slider' ); ?></button>
+														<button type="button" class="xs-html-tab" data-mode="preview"><?php esc_html_e( 'Preview', 'xtreme-slider' ); ?></button>
+													</div>
+												</div>
+												<?php $html_editor_id = 'xs-html-editor-' . uniqid(); ?>
+												<textarea id="<?php echo esc_attr( $html_editor_id ); ?>" class="xs-slide-html" name="slides[html_content][]" rows="12" placeholder="<?php esc_attr_e( 'Paste HTML here. It will be shown when this option is clicked on the frontend.', 'xtreme-slider' ); ?>"><?php echo esc_textarea( $slide->html_content ?? '' ); ?></textarea>
+												<iframe class="xs-html-preview" style="display:none;"></iframe>
+											</div>
 										</div>
 										<button type="button" class="xs-slide-remove" title="<?php esc_attr_e( 'Remove slide', 'xtreme-slider' ); ?>">&times;</button>
 									</div>
 								<?php endforeach; ?>
 							</div>
 
-							<button type="button" id="xs-add-slides" class="xs-btn xs-btn-secondary xs-btn-lg" <?php echo count( $slides ) >= 10 ? 'disabled' : ''; ?>>
-								<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-								<?php esc_html_e( 'Add Images', 'xtreme-slider' ); ?>
-							</button>
+							<div class="xs-slides-actions">
+								<div class="xs-slides-action-buttons">
+									<button type="button" id="xs-add-slides" class="xs-btn xs-btn-secondary xs-btn-lg" <?php echo count( $slides ) >= $max_slides ? 'disabled' : ''; ?>>
+										<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+										<?php esc_html_e( 'Add Images', 'xtreme-slider' ); ?>
+									</button>
+									<button type="button" id="xs-load-titles" class="xs-btn xs-btn-secondary xs-btn-lg" <?php echo empty( $slides ) ? 'disabled' : ''; ?>>
+										<?php esc_html_e( 'Load Titles', 'xtreme-slider' ); ?>
+									</button>
+								</div>
+								<span id="xs-load-titles-feedback" class="xs-action-feedback" role="status" aria-live="polite" hidden></span>
+							</div>
 						</div>
 
 						<!-- Shortcode (only shown for saved sliders) -->
@@ -118,7 +205,7 @@ class Xtrsl_Admin_Edit {
 
 						<div class="xs-form-section">
 							<h2><?php esc_html_e( 'Layout', 'xtreme-slider' ); ?></h2>
-							<div class="xs-radio-cards xs-radio-cards-3">
+							<div class="xs-radio-cards xs-radio-cards-4">
 								<label class="xs-radio-card <?php echo 'default' === $slider->layout ? 'active' : ''; ?>">
 									<input type="radio" name="layout" value="default" <?php checked( $slider->layout, 'default' ); ?>>
 									<span class="xs-radio-card-icon">
@@ -140,14 +227,32 @@ class Xtrsl_Admin_Edit {
 									</span>
 									<span class="xs-radio-card-label"><?php esc_html_e( '3D', 'xtreme-slider' ); ?></span>
 								</label>
+								<label class="xs-radio-card <?php echo 'options' === $slider->layout ? 'active' : ''; ?>">
+									<input type="radio" name="layout" value="options" <?php checked( $slider->layout, 'options' ); ?>>
+									<span class="xs-radio-card-icon">
+										<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="18" height="7" rx="1.5"/></svg>
+									</span>
+									<span class="xs-radio-card-label"><?php esc_html_e( 'Options', 'xtreme-slider' ); ?></span>
+								</label>
 							</div>
 						</div>
 
 						<div class="xs-form-section">
 							<h2><?php esc_html_e( 'Display Options', 'xtreme-slider' ); ?></h2>
 							<div class="xs-form-row">
-								<label><?php esc_html_e( 'Visible Slides (1–6)', 'xtreme-slider' ); ?></label>
-								<input type="number" name="visible_count" value="<?php echo esc_attr( $slider->visible_count ); ?>" min="1" max="6" class="xs-input-sm">
+								<label>
+									<?php
+									printf(
+										/* translators: %d: max visible slides */
+										esc_html__( 'Visible Slides (1–%d)', 'xtreme-slider' ),
+										(int) $max_visible_slides
+									);
+									?>
+								</label>
+								<input type="number" name="visible_count" value="<?php echo esc_attr( $slider->visible_count ); ?>" min="1" max="<?php echo esc_attr( $max_visible_slides ); ?>" class="xs-input-sm">
+								<?php if ( $is_premium ) : ?>
+									<div class="xs-form-hint"><?php esc_html_e( 'Premium lets you show up to 15 slides at once on large screens.', 'xtreme-slider' ); ?></div>
+								<?php endif; ?>
 							</div>
 							<div class="xs-form-row">
 								<label class="xs-toggle-label">
@@ -162,13 +267,13 @@ class Xtrsl_Admin_Edit {
 									<option value="1:1" <?php selected( $slider->image_ratio ?? '16:10', '1:1' ); ?>><?php esc_html_e( '1:1 (Square)', 'xtreme-slider' ); ?></option>
 								</select>
 							</div>
-							<div class="xs-form-row">
+							<div class="xs-form-row xs-hide-on-options">
 								<label><?php esc_html_e( 'Link Hover Color', 'xtreme-slider' ); ?></label>
 								<input type="text" name="link_hover_color" value="<?php echo esc_attr( $slider->link_hover_color ?? '#ee212b' ); ?>" class="xs-color-picker">
 							</div>
 						</div>
 
-						<div class="xs-form-section">
+						<div class="xs-form-section xs-hide-on-options">
 							<h2><?php esc_html_e( 'Autoplay', 'xtreme-slider' ); ?></h2>
 							<div class="xs-form-row">
 								<label class="xs-toggle-label">
@@ -199,8 +304,31 @@ class Xtrsl_Admin_Edit {
 							<div class="xs-gradient-preview" id="xs-gradient-preview" style="background: linear-gradient(135deg, <?php echo esc_attr( $slider->gradient_start ); ?>, <?php echo esc_attr( $slider->gradient_end ); ?>);"></div>
 						</div>
 
+						<div class="xs-form-section" id="xs-3d-bg-section" style="<?php echo '3d' !== $slider->layout ? 'display:none;' : ''; ?>">
+							<h2><?php esc_html_e( 'Background Color', 'xtreme-slider' ); ?></h2>
+							<p class="xs-form-desc"><?php esc_html_e( 'Background color behind the 3D slider.', 'xtreme-slider' ); ?></p>
+							<div class="xs-form-row">
+								<label><?php esc_html_e( 'Color', 'xtreme-slider' ); ?></label>
+								<input type="text" name="bg_color_3d" value="<?php echo esc_attr( $slider->bg_color_3d ?? '' ); ?>" class="xs-color-picker">
+							</div>
+						</div>
+
+						<div class="xs-form-section" id="xs-options-bg-section" style="<?php echo 'options' !== $slider->layout ? 'display:none;' : ''; ?>">
+							<h2><?php esc_html_e( 'Background Color', 'xtreme-slider' ); ?></h2>
+							<p class="xs-form-desc"><?php esc_html_e( 'Background color behind the Options slider. Leave empty to use the default light/dark theme.', 'xtreme-slider' ); ?></p>
+							<div class="xs-form-row">
+								<label><?php esc_html_e( 'Color', 'xtreme-slider' ); ?></label>
+								<input type="text" name="bg_color_options" value="<?php echo esc_attr( $slider->bg_color_options ?? '' ); ?>" class="xs-color-picker">
+							</div>
+						</div>
+
 						<div class="xs-form-actions">
 							<button type="submit" class="xs-btn xs-btn-primary xs-btn-lg xs-btn-full" id="xs-save-btn"><span class="xs-spinner"></span> <?php echo $is_new ? esc_html__( 'Create Slider', 'xtreme-slider' ) : esc_html__( 'Save Changes', 'xtreme-slider' ); ?></button>
+							<?php if ( $save_feedback_text ) : ?>
+								<span class="xs-save-feedback <?php echo esc_attr( $save_feedback_class ); ?>" title="<?php echo esc_attr( $save_feedback_title ); ?>" role="status" aria-live="polite">
+									<span class="xs-save-feedback-text"><?php echo esc_html( $save_feedback_text ); ?></span>
+								</span>
+							<?php endif; ?>
 						</div>
 					</div>
 
@@ -221,11 +349,26 @@ class Xtrsl_Admin_Edit {
 
 		global $wpdb;
 
+		if ( class_exists( 'XS_Activator' ) ) {
+			XS_Activator::maybe_upgrade();
+			if ( method_exists( 'XS_Activator', 'storage_ready' ) && ! XS_Activator::storage_ready() ) {
+				self::rollback_and_fail( 0, 'Slider storage is not ready after upgrade.' );
+			}
+		}
+
 		$slider_id      = absint( wp_unslash( $_POST['slider_id'] ?? 0 ) );
+		if ( ! $slider_id && ! xs_can_create_slider() ) {
+			self::redirect_to_slider_limit();
+		}
+
+		$current_slider = $slider_id ? xs_get_slider( $slider_id ) : null;
+		$redirect_id    = $slider_id;
+		$slide_limit    = xs_get_edit_max_slides( $slider_id );
+		$visible_limit  = xs_get_edit_max_visible_slides( $slider_id );
 		$title          = sanitize_text_field( wp_unslash( $_POST['title'] ?? '' ) );
 		$layout         = sanitize_text_field( wp_unslash( $_POST['layout'] ?? 'default' ) );
-		$layout         = in_array( $layout, array( 'default', 'cool', '3d' ), true ) ? $layout : 'default';
-		$visible_count  = max( 1, min( 6, absint( wp_unslash( $_POST['visible_count'] ?? 3 ) ) ) );
+		$layout         = in_array( $layout, array( 'default', 'cool', '3d', 'options' ), true ) ? $layout : 'default';
+		$visible_count  = max( 1, min( $visible_limit, absint( wp_unslash( $_POST['visible_count'] ?? 3 ) ) ) );
 		$autoplay       = isset( $_POST['autoplay'] ) ? 1 : 0;
 		$autoplay_speed = max( 2000, min( 10000, absint( wp_unslash( $_POST['autoplay_speed'] ?? 4000 ) ) ) );
 		$fullscreen     = isset( $_POST['fullscreen'] ) ? 1 : 0;
@@ -249,6 +392,8 @@ class Xtrsl_Admin_Edit {
 			'link_hover_color' => $link_hover_color,
 			'gradient_start'   => $gradient_start,
 			'gradient_end'   => $gradient_end,
+			'bg_color_3d'      => $bg_color_3d,
+			'bg_color_options' => $bg_color_options,
 			'status'         => $status,
 			'updated_at'     => $now,
 		);
@@ -277,8 +422,16 @@ class Xtrsl_Admin_Edit {
 			$captions     = array_map( 'sanitize_text_field', wp_unslash( $_POST['slides']['caption'] ?? array() ) );
 			$descriptions = array_map( 'sanitize_text_field', wp_unslash( $_POST['slides']['description'] ?? array() ) );
 			$link_urls    = array_map( 'sanitize_text_field', wp_unslash( $_POST['slides']['link_url'] ?? array() ) );
+			// HTML content is saved raw for users with unfiltered_html; otherwise sanitized via wp_kses_post.
+			$raw_html     = isset( $_POST['slides']['html_content'] ) && is_array( $_POST['slides']['html_content'] )
+				? wp_unslash( $_POST['slides']['html_content'] )
+				: array();
+			$html_contents = array();
+			foreach ( $raw_html as $html ) {
+				$html_contents[] = current_user_can( 'unfiltered_html' ) ? (string) $html : wp_kses_post( (string) $html );
+			}
 
-			$max = min( count( $image_ids ), 10 );
+			$max = min( count( $image_ids ), $slide_limit );
 			for ( $i = 0; $i < $max; $i++ ) {
 				if ( ! $image_ids[ $i ] ) {
 					continue;
@@ -287,23 +440,55 @@ class Xtrsl_Admin_Edit {
 				$wpdb->insert(
 					$wpdb->prefix . 'xtrsl_slides',
 					array(
-						'slider_id'   => $slider_id,
-						'image_id'    => $image_ids[ $i ],
-						'image_url'   => $image_urls[ $i ] ?? '',
-						'title'       => $titles[ $i ] ?? '',
-						'caption'     => $captions[ $i ] ?? '',
-						'description' => $descriptions[ $i ] ?? '',
-						'link_url'    => $link_urls[ $i ] ?? '',
-						'sort_order'  => $i,
-						'created_at'  => $now,
+						'slider_id'    => $slider_id,
+						'image_id'     => $image_ids[ $i ],
+						'image_url'    => $image_urls[ $i ] ?? '',
+						'title'        => $titles[ $i ] ?? '',
+						'caption'      => $captions[ $i ] ?? '',
+						'description'  => $descriptions[ $i ] ?? '',
+						'link_url'     => $link_urls[ $i ] ?? '',
+						'html_content' => $html_contents[ $i ] ?? '',
+						'sort_order'   => $i,
+						'created_at'   => $now,
 					),
-					array( '%d', '%d', '%s', '%s', '%s', '%s', '%s', '%d', '%s' )
+					array( '%d', '%d', '%s', '%s', '%s', '%s', '%s', '%s', '%d', '%s' )
 				);
+
+				if ( false === $inserted ) {
+					self::rollback_and_fail( $redirect_id, $wpdb->last_error );
+				}
 			}
 		}
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Commit completes the atomic save.
+		$wpdb->query( 'COMMIT' );
+
 		// Redirect to edit page with success message.
 		wp_safe_redirect( admin_url( 'admin.php?page=xtrsl-edit&slider_id=' . $slider_id . '&saved=1' ) );
+		exit;
+	}
+
+	private static function rollback_and_fail( $slider_id, $error = '' ) {
+		global $wpdb;
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Best-effort rollback for partial writes.
+		$wpdb->query( 'ROLLBACK' );
+
+		if ( $error ) {
+			error_log( 'Xtreme Slider save failed: ' . $error );
+		}
+
+		$url = admin_url( 'admin.php?page=xs-edit&xs_error=save_failed' );
+		if ( $slider_id ) {
+			$url = add_query_arg( 'slider_id', (int) $slider_id, $url );
+		}
+
+		wp_safe_redirect( $url );
+		exit;
+	}
+
+	private static function redirect_to_slider_limit() {
+		wp_safe_redirect( admin_url( 'admin.php?page=xtreme-slider&xs_error=slider_limit' ) );
 		exit;
 	}
 }

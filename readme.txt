@@ -1,28 +1,31 @@
-=== XtremeSlider ===
-Contributors: loanpartnership
+=== Xtreme Slider (3D Image Slider) ===
+Contributors: xtremeplugins
+Donate link: https://xtremeplugins.com/donate/xtreme-slider
 Tags: slider, image slider, carousel, responsive slider, 3d slider
 Tested up to: 6.9
-Stable tag: 1.2.1
+Stable tag: 1.4.3
 Requires at least: 6.0
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Beautiful image slider with 3 layout modes, infinite loop, and shortcode embedding. No jQuery on frontend, no WooCommerce required.
+Beautiful image slider with 4 layout modes, infinite loop, and shortcode embedding. No jQuery on frontend, no WooCommerce required.
 
 == Description ==
 
-XtremeSlider is a free, lightweight WordPress slider plugin that lets you create stunning image sliders with three distinct layout modes and embed them anywhere using a simple shortcode.
+XtremeSlider is a free, lightweight WordPress slider plugin that lets you create stunning image sliders with four distinct layout modes and embed them anywhere using a simple shortcode.
 
 Built for performance — the frontend uses pure vanilla JavaScript with zero external dependencies.
 
-= Three Layout Modes =
+= Four Layout Modes =
 
 **Default** — Editorial full-bleed slider with peek effect. Center slides are fully visible while adjacent slides peek from the edges. Features infinite seamless looping, vertical title text overlay, and caption/description sections below center slides.
 
 **Cool** — Card-based slider with customizable gradient background. Rounded-corner slides with hover lift effects and pagination dots.
 
-**3D** — Dramatic CSS perspective slider with depth transforms. Center slide is prominent while adjacent slides rotate and scale back in 3D space with glassmorphism-styled arrows.
+**3D** — Dramatic CSS perspective slider with depth transforms. Center slide is prominent while adjacent slides rotate and scale back in 3D space with glassmorphism-styled arrows. Per-slider background color.
+
+**Options** — Static grid of clickable option cards (image + title + caption). Clicking a card reveals its own HTML content in a detail panel below — useful for product variants, plan comparisons, or "pick one, see details" interfaces. Each card's HTML is editable with inline Code / Preview tabs. Per-slider background color.
 
 = Key Features =
 
@@ -30,7 +33,7 @@ Built for performance — the frontend uses pure vanilla JavaScript with zero ex
 * **Up to 10 Slides** — Add up to 10 images per slider with drag-to-reorder
 * **4 Content Fields Per Slide** — Title (vertical overlay), Caption (heading below), Description (paragraph below), Link URL
 * **Relative & Absolute Links** — Link to `/roofing` or `https://example.com`
-* **Image Ratios** — Choose 16:10 (landscape) or 1:1 (square) per slider
+* **Image Ratios** — Choose 16:10 (landscape), 1:1 (square), or Fixed Height (pixel height, width scales to natural proportions) per slider. Premium adds Default (original) ratio
 * **Autoplay** — Configurable speed (2-10 seconds), pauses on hover
 * **Fullscreen Mode** — 100vw edge-to-edge display
 * **Touch & Swipe** — Full mobile touch support
@@ -38,6 +41,8 @@ Built for performance — the frontend uses pure vanilla JavaScript with zero ex
 * **Hover Effects** — Image zoom on hover, caption underline color change
 * **Link Hover Color** — Configurable per slider via color picker
 * **Gradient Background** — Two-color gradient picker for Cool layout
+* **Background Color** — Solid color picker for 3D and Options layouts
+* **Display Toggles** — Square corners and black arrows toggles per slider
 * **Shortcode Overrides** — Override layout, visible count, autoplay, fullscreen per instance
 * **Conditional Loading** — CSS/JS only load on pages containing a slider
 
@@ -50,10 +55,6 @@ Fully standalone. No WooCommerce, Elementor, or any other plugin required.
 Works in Elementor Shortcode widget, Gutenberg Shortcode block, Classic Editor, or any page builder.
 
 == Support ==
-
-For documentation and more information visit:
-
-[https://xtremeplugins.com/plugins/xtreme-slider](https://xtremeplugins.com/plugins/xtreme-slider)
 
 Please submit bugs, patches, and feature requests to:
 
@@ -85,9 +86,10 @@ Yes. Fully standalone with zero external dependencies.
 
 Yes. Paste `[xtreme_slider id="X"]` into Elementor's Shortcode widget.
 
-= How many slides can I add? =
+= How many sliders and slides can I add? =
 
-Up to 10 slides per slider. Configure 1-6 visible at once.
+Free mode allows up to 2 sliders, up to 10 images per slider, and 1-6 visible slides at once.
+Premium unlocks unlimited sliders, up to 50 images per slider, and up to 15 visible slides at once.
 
 = Is the slider responsive? =
 
@@ -107,11 +109,39 @@ Yes. `[xtreme_slider id="5" layout="3d" visible="2" autoplay="true" fullscreen="
 
 == Changelog ==
 
-= 1.2.1 - 15th April 2026 =
-* Renamed all plugin-specific PHP constants, classes, functions, and option keys to use the unique `xtrsl_` prefix for WordPress.org compliance
-* Renamed database table prefixes from `xs_` to `xtrsl_` to avoid naming conflicts
-* Removed donate link that was returning a redirect response
-* Added plugin author to contributors list in readme
+= 1.4.3 - 9th May 2026 =
+* Fixed Cool layout fixed-height sliders losing navigation arrows when more than one slider was on the page — slide widths are derived from natural image dimensions, but lazy-loaded images had not finished loading at init time, so the max-page calculation read width 0 and hid the arrows. Layout and arrow visibility now re-run as each slide image loads, plus once on `window.load`
+
+= 1.4.2 - 9th May 2026 =
+* Fixed Cool layout with fixed-height image ratio cropping wider images by forcing all slides to a uniform slot width — slides now keep each image's natural width derived from its aspect ratio at the configured fixed height
+* Cool layout navigation in fixed-height mode now scrolls by per-slide width instead of a uniform page step
+
+= 1.4.1 - 20th April 2026 =
+* Added `Options` layout — clickable static cards that reveal per-slide HTML content in a detail panel below
+* Added inline Code / Preview tabs for editing the HTML content of each option
+* Added `Background Color` picker for the Options layout
+* Added `Background Color` picker for the 3D layout
+* Improved 3D layout to respect the configured visible slide count
+* Improved 3D layout with fixed-height image ratio to preserve natural aspect ratio
+* Preselect first card in the Options layout on load
+
+= 1.3.4 - 11th April 2026 =
+* Added `Black arrows` display option for solid black arrow circles with white icons
+* Added live upgrade support for the new `black_arrows` slider setting column
+
+= 1.3.3 - 11th April 2026 =
+* Limited free mode to 2 total sliders
+* Disabled new slider creation in the admin once the free slider cap is reached
+* Blocked direct/cached create requests in the save handler so the free slider limit cannot be bypassed
+
+= 1.3.2 - 11th April 2026 =
+* Added premium license activation with up to 50 images per slider and up to 15 visible slides
+* Added premium-only `Default (Original ratio)` image ratio option
+* Added `Load Titles` action to fill slide titles from image filenames
+* Added `Square corners` display option for sharp image corners
+* Improved editor save feedback with a compact inline status pill
+* Fixed save failures on installs missing newer slider-table columns
+* Fixed partial save/orphan slide rows by making slider saves transactional
 
 = 1.2.0 - 25th March 2026 =
 * Added image ratio option: 16:10 (landscape) or 1:1 (square) per slider
@@ -142,7 +172,8 @@ Yes. `[xtreme_slider id="5" layout="3d" visible="2" autoplay="true" fullscreen="
 * Initial production release
 * Default layout — editorial full-bleed slider with peek effect and infinite loop
 * 3D layout — perspective slider with depth transforms and glassmorphism arrows
-* Up to 10 slides per slider, 1-6 visible at once
+* Free mode: up to 2 sliders, 10 images per slider, and 1-6 visible slides
+* Premium mode: unlimited sliders, 50 images per slider, and up to 15 visible slides
 * Per-slide fields: title, caption, description, link URL
 * Relative and absolute link support
 * Image hover zoom effect

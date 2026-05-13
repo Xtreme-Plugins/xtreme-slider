@@ -1,6 +1,6 @@
 <?php
 /**
- * Plugin Name: XtremeSlider
+ * Plugin Name: Xtreme Slider (3D Image Slider)
  * Plugin URI: https://xtremeplugins.com/plugins/xtreme-slider/
  * Description: Beautiful image slider with Simple and 3D layouts. Upload photos, generate shortcodes, and embed anywhere in WordPress or Elementor.
  * Version: 1.2.1

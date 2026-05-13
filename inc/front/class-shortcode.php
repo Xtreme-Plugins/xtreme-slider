@@ -32,8 +32,11 @@ class Xtrsl_Shortcode {
 		}
 
 		// Allow shortcode attribute overrides.
-		$layout     = $atts['layout'] && in_array( $atts['layout'], array( 'default', 'cool', '3d' ), true ) ? $atts['layout'] : $slider->layout;
-		$visible    = $atts['visible'] ? max( 1, min( 6, absint( $atts['visible'] ) ) ) : intval( $slider->visible_count );
+		$total_slides = count( $slides );
+		$layout     = $atts['layout'] && in_array( $atts['layout'], array( 'default', 'cool', '3d', 'options' ), true ) ? $atts['layout'] : $slider->layout;
+		$visible_max = xs_get_max_visible_slides();
+		$visible    = $atts['visible'] ? max( 1, min( $visible_max, absint( $atts['visible'] ) ) ) : max( 1, min( $visible_max, intval( $slider->visible_count ) ) );
+		$visible    = min( $visible, $total_slides );
 		$autoplay   = '' !== $atts['autoplay'] ? filter_var( $atts['autoplay'], FILTER_VALIDATE_BOOLEAN ) : (bool) $slider->autoplay;
 		$fullscreen = '' !== $atts['fullscreen'] ? filter_var( $atts['fullscreen'], FILTER_VALIDATE_BOOLEAN ) : (bool) $slider->fullscreen;
 

@@ -77,6 +77,12 @@ class Xtrsl_Admin {
 			return;
 		}
 
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only route parameter used to calculate the current editor limit.
+		$page      = isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : '';
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only route parameter used to calculate the current editor limit.
+		$slider_id = isset( $_GET['slider_id'] ) ? absint( wp_unslash( $_GET['slider_id'] ) ) : 0;
+		$max_slides = 'xs-edit' === $page ? xs_get_edit_max_slides( $slider_id ) : xs_get_max_slides();
+
 		wp_enqueue_media();
 		wp_enqueue_style( 'wp-color-picker' );
 		wp_enqueue_style( 'xtrsl-admin', XTRSL_PLUGIN_URL . 'assets/css/admin.css', array(), XTRSL_VERSION );

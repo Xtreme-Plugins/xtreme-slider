@@ -18,7 +18,7 @@ class Xtrsl_Activator {
 		dbDelta( "CREATE TABLE {$wpdb->prefix}xtrsl_sliders (
 			id               BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
 			title            VARCHAR(255) NOT NULL DEFAULT '',
-			layout           ENUM('default','cool','3d') NOT NULL DEFAULT 'default',
+			layout           ENUM('default','cool','3d','options') NOT NULL DEFAULT 'default',
 			visible_count    TINYINT(3) UNSIGNED NOT NULL DEFAULT 3,
 			autoplay         TINYINT(1) NOT NULL DEFAULT 0,
 			autoplay_speed   INT UNSIGNED NOT NULL DEFAULT 4000,
@@ -27,6 +27,8 @@ class Xtrsl_Activator {
 			link_hover_color VARCHAR(7) NOT NULL DEFAULT '#ee212b',
 			gradient_start   VARCHAR(7) NOT NULL DEFAULT '#ec38bc',
 			gradient_end     VARCHAR(7) NOT NULL DEFAULT '#7303c0',
+			bg_color_3d      VARCHAR(7) NOT NULL DEFAULT '#0a0a0a',
+			bg_color_options VARCHAR(7) NOT NULL DEFAULT '',
 			status           ENUM('active','draft') NOT NULL DEFAULT 'active',
 			created_at       DATETIME NOT NULL,
 			updated_at       DATETIME NOT NULL,
@@ -63,6 +65,10 @@ class Xtrsl_Activator {
 					'image_ratio'    => '16:10',
 					'gradient_start' => '#ec38bc',
 					'gradient_end'   => '#7303c0',
+					'bg_color_3d'    => '#0a0a0a',
+				),
+				'license' => array(
+					'code' => '',
 				),
 			) );
 		}

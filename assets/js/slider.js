@@ -8,9 +8,72 @@
     document.addEventListener('DOMContentLoaded', function () {
         var sliders = document.querySelectorAll('.xs-slider-wrap');
         sliders.forEach(function (el) {
-            new XtremeSlider(el);
+            if (el.dataset.layout === 'options') {
+                initOptionsLayout(el);
+            } else {
+                new XtremeSlider(el);
+            }
         });
     });
+
+    /* ======================================================================
+       OPTIONS LAYOUT — Clickable cards with HTML detail panel
+       ====================================================================== */
+    function initOptionsLayout(el) {
+        var grid    = el.querySelector('.xs-options-grid');
+        var detail  = el.querySelector('.xs-options-detail');
+        var data    = el.querySelector('.xs-options-data');
+
+        if (!grid || !detail || !data) return;
+
+        var templates = {};
+        data.querySelectorAll('template').forEach(function (tpl) {
+            templates[tpl.dataset.index] = tpl.innerHTML;
+        });
+
+        function selectCard(card, animate) {
+            if (!card) return;
+
+            grid.querySelectorAll('.xs-option-card').forEach(function (c) {
+                c.classList.remove('active');
+            });
+            card.classList.add('active');
+
+            var idx  = card.dataset.index;
+            var html = templates[idx] || '';
+
+            var swap = function () {
+                if (html && html.trim()) {
+                    detail.innerHTML = '<div class="xs-options-detail-content">' + html + '</div>';
+                } else {
+                    detail.innerHTML = '<div class="xs-options-detail-empty">No content for this option.</div>';
+                }
+                detail.style.opacity = '1';
+                detail.style.transform = 'translateY(0)';
+            };
+
+            if (animate === false) {
+                swap();
+                return;
+            }
+
+            detail.style.opacity = '0';
+            detail.style.transform = 'translateY(8px)';
+            setTimeout(swap, 200);
+        }
+
+        grid.addEventListener('click', function (e) {
+            var card = e.target.closest('.xs-option-card');
+            if (!card) return;
+            selectCard(card, true);
+        });
+
+        // Preselect the first card on load
+        var firstCard = grid.querySelector('.xs-option-card');
+        if (firstCard) {
+            selectCard(firstCard, false);
+        }
+    }
 
     function XtremeSlider(el) {
         this.el        = el;
@@ -19,6 +82,7 @@
         this.autoplay  = el.dataset.autoplay === 'true';
         this.speed     = parseInt(el.dataset.speed, 10) || 4000;
         this.total     = parseInt(el.dataset.total, 10) || 0;
+        this.fixedHeight = parseInt(el.dataset.fixedHeight, 10) || 0;
 
         this.track     = el.querySelector('.xs-slider-track');
         this.slides    = el.querySelectorAll('.xs-slide');
@@ -90,6 +154,29 @@
                 self.updateCool();
             }
         });
+
+        // Cool-fixed mode derives slide widths from natural image dimensions, so
+        // arrow visibility and track offsets aren't reliable until images have
+        // loaded. Re-run the layout each time a slide image loads, plus once on
+        // window.load as a final safety net.
+        var imgs = this.el.querySelectorAll('.xs-slide-image');
+        imgs.forEach(function (img) {
+            if (img.complete && img.naturalWidth > 0) return;
+            img.addEventListener('load', function () { self.recalcLayout(); }, { once: true });
+            img.addEventListener('error', function () { self.recalcLayout(); }, { once: true });
+        });
+        window.addEventListener('load', function () { self.recalcLayout(); });
+    };
+
+    XtremeSlider.prototype.recalcLayout = function () {
+        if (this.layout === '3d') {
+            this.update3D();
+        } else if (this.layout === 'default') {
+            this.updateDefault();
+        } else {
+            this.updateCool();
+        }
+        this.updateArrowVisibility();
     };
 
     /* ======================================================================
@@ -207,6 +294,16 @@
     };
 
     XtremeSlider.prototype.updateCool = function () {
+        if (this.fixedHeight > 0) {
+            // Fixed-height ratio: clear any forced widths so each slide keeps the
+            // natural width derived from its image aspect ratio at the fixed height.
+            this.slides.forEach(function (slide) {
+                slide.style.width = '';
+            });
+            this.moveCool();
+            return;
+        }
+
         var viewport = this.el.querySelector('.xs-slider-viewport');
         var vpWidth  = viewport.offsetWidth;
         var vis      = this.getResponsiveVisible();
@@ -220,11 +317,19 @@
     };
 
     XtremeSlider.prototype.moveCool = function () {
-        var viewport = this.el.querySelector('.xs-slider-viewport');
-        var vpWidth  = viewport.offsetWidth;
-        var vis      = this.getResponsiveVisible();
-        var slideW   = vpWidth / vis;
-        var offset   = -(this.current * slideW);
+        var offset;
+        if (this.fixedHeight > 0) {
+            offset = 0;
+            for (var i = 0; i < this.current && i < this.slides.length; i++) {
+                offset -= this.slides[i].offsetWidth;
+            }
+        } else {
+            var viewport = this.el.querySelector('.xs-slider-viewport');
+            var vpWidth  = viewport.offsetWidth;
+            var vis      = this.getResponsiveVisible();
+            var slideW   = vpWidth / vis;
+            offset       = -(this.current * slideW);
+        }
 
         this.track.style.transform = 'translateX(' + offset + 'px)';
         this.updateDots();
@@ -242,6 +347,24 @@
         if (this.layout === '3d') {
             return this.total - 1;
         }
+        if (this.layout === 'cool' && this.fixedHeight > 0) {
+            var viewport = this.el.querySelector('.xs-slider-viewport');
+            var vpWidth = viewport ? viewport.offsetWidth : 0;
+            var totalWidth = 0;
+            for (var i = 0; i < this.slides.length; i++) {
+                totalWidth += this.slides[i].offsetWidth;
+            }
+            if (totalWidth <= vpWidth) return 0;
+            // Smallest index from which the remaining slides still overflow the viewport.
+            var sum = 0;
+            for (var j = this.slides.length - 1; j >= 0; j--) {
+                sum += this.slides[j].offsetWidth;
+                if (sum > vpWidth) {
+                    return j + 1;
+                }
+            }
+            return 0;
+        }
         var vis = this.getResponsiveVisible();
         return Math.max(0, this.total - vis);
     };
@@ -258,14 +381,32 @@
         var viewport = this.el.querySelector('.xs-slider-viewport');
         var vpWidth  = viewport.offsetWidth;
 
-        // Calculate slide width based on viewport — center slide is larger
+        // How many slides on each side of the center slide
+        var sideCount = Math.floor(this.visible / 2);
+        if (sideCount < 1) sideCount = 1;
+
+        // Adjust viewport height for fixed height
+        if (this.fixedHeight > 0) {
+            viewport.style.height = (this.fixedHeight + 60) + 'px';
+        } else {
+            viewport.style.height = '';
+        }
+
+        // For fixed height, don't force a slide width — let images keep their natural ratio
+        var useAutoWidth = this.fixedHeight > 0;
         var slideW = Math.min(vpWidth * 0.55, 600);
-        var slideH = viewport.offsetHeight;
 
         this.slides.forEach(function (slide, i) {
             var diff = i - self.current;
+            var absDiff = Math.abs(diff);
 
-            slide.style.width = slideW + 'px';
+            if (useAutoWidth) {
+                slide.style.width = 'auto';
+                slide.style.maxWidth = slideW + 'px';
+            } else {
+                slide.style.width = slideW + 'px';
+                slide.style.maxWidth = '';
+            }
             slide.classList.remove('xs-active');
 
             if (diff === 0) {
@@ -273,21 +414,29 @@
                 slide.style.transform = 'translateX(-50%) translateZ(0) scale(1)';
                 slide.style.left = '50%';
                 slide.style.opacity = '1';
-                slide.style.zIndex = '5';
+                slide.style.zIndex = String(sideCount + 1);
                 slide.classList.add('xs-active');
-            } else if (Math.abs(diff) === 1) {
-                // Adjacent slides
-                var xOff = diff > 0 ? '20%' : '-120%';
-                slide.style.transform = 'translateX(0) translateZ(-150px) rotateY(' + (diff * -25) + 'deg) scale(0.85)';
-                slide.style.left = diff > 0 ? '62%' : '-17%';
-                slide.style.opacity = '0.7';
-                slide.style.zIndex = '3';
-            } else if (Math.abs(diff) === 2) {
-                // Far slides
-                slide.style.transform = 'translateX(0) translateZ(-300px) rotateY(' + (diff * -30) + 'deg) scale(0.7)';
-                slide.style.left = diff > 0 ? '80%' : '-35%';
-                slide.style.opacity = '0.4';
-                slide.style.zIndex = '1';
+            } else if (absDiff <= sideCount) {
+                // Visible side slides — position dynamically based on distance
+                var t = absDiff / sideCount; // 0..1 normalized distance
+                var depthZ = -150 * absDiff;
+                var rotateY = diff * -25;
+                var scale = 1 - (0.15 * absDiff);
+                if (scale < 0.4) scale = 0.4;
+                var opacity = 1 - (0.3 * absDiff);
+                if (opacity < 0.2) opacity = 0.2;
+                var zIndex = sideCount + 1 - absDiff;
+
+                // Spread slides evenly across viewport sides
+                var spacing = 45 / sideCount; // percentage per step
+                var leftPos = diff > 0
+                    ? 50 + (spacing * absDiff) + '%'
+                    : 50 - (spacing * absDiff) - slideW / vpWidth * 100 + '%';
+
+                slide.style.transform = 'translateX(0) translateZ(' + depthZ + 'px) rotateY(' + rotateY + 'deg) scale(' + scale.toFixed(2) + ')';
+                slide.style.left = leftPos;
+                slide.style.opacity = String(opacity.toFixed(2));
+                slide.style.zIndex = String(Math.max(0, zIndex));
             } else {
                 // Hidden slides
                 slide.style.transform = 'translateZ(-500px) scale(0.5)';
