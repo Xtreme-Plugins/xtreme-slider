@@ -9,21 +9,23 @@ Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Beautiful image slider with 3 layout modes, infinite loop, and shortcode embedding. No jQuery on frontend, no WooCommerce required.
+Beautiful image slider with 4 layout modes, infinite loop, and shortcode embedding. No jQuery on frontend, no WooCommerce required.
 
 == Description ==
 
-XtremeSlider is a free, lightweight WordPress slider plugin that lets you create stunning image sliders with three distinct layout modes and embed them anywhere using a simple shortcode.
+XtremeSlider is a free, lightweight WordPress slider plugin that lets you create stunning image sliders with four distinct layout modes and embed them anywhere using a simple shortcode.
 
 Built for performance — the frontend uses pure vanilla JavaScript with zero external dependencies.
 
-= Three Layout Modes =
+= Four Layout Modes =
 
 **Default** — Editorial full-bleed slider with peek effect. Center slides are fully visible while adjacent slides peek from the edges. Features infinite seamless looping, vertical title text overlay, and caption/description sections below center slides.
 
 **Cool** — Card-based slider with customizable gradient background. Rounded-corner slides with hover lift effects and pagination dots.
 
-**3D** — Dramatic CSS perspective slider with depth transforms. Center slide is prominent while adjacent slides rotate and scale back in 3D space with glassmorphism-styled arrows.
+**3D** — Dramatic CSS perspective slider with depth transforms. Center slide is prominent while adjacent slides rotate and scale back in 3D space with glassmorphism-styled arrows. Per-slider background color.
+
+**Options** — Static grid of clickable option cards (image + title + caption). Clicking a card reveals its own HTML content in a detail panel below — useful for product variants, plan comparisons, or "pick one, see details" interfaces. Each card's HTML is editable with inline Code / Preview tabs. Per-slider background color.
 
 = Key Features =
 
@@ -31,7 +33,7 @@ Built for performance — the frontend uses pure vanilla JavaScript with zero ex
 * **Up to 10 Slides** — Add up to 10 images per slider with drag-to-reorder
 * **4 Content Fields Per Slide** — Title (vertical overlay), Caption (heading below), Description (paragraph below), Link URL
 * **Relative & Absolute Links** — Link to `/roofing` or `https://example.com`
-* **Image Ratios** — Choose 16:10 (landscape) or 1:1 (square) per slider
+* **Image Ratios** — Choose 16:10 (landscape), 1:1 (square), or Fixed Height (pixel height, width scales to natural proportions) per slider. Premium adds Default (original) ratio
 * **Autoplay** — Configurable speed (2-10 seconds), pauses on hover
 * **Fullscreen Mode** — 100vw edge-to-edge display
 * **Touch & Swipe** — Full mobile touch support
@@ -39,6 +41,8 @@ Built for performance — the frontend uses pure vanilla JavaScript with zero ex
 * **Hover Effects** — Image zoom on hover, caption underline color change
 * **Link Hover Color** — Configurable per slider via color picker
 * **Gradient Background** — Two-color gradient picker for Cool layout
+* **Background Color** — Solid color picker for 3D and Options layouts
+* **Display Toggles** — Square corners and black arrows toggles per slider
 * **Shortcode Overrides** — Override layout, visible count, autoplay, fullscreen per instance
 * **Conditional Loading** — CSS/JS only load on pages containing a slider
 

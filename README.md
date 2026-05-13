@@ -3,10 +3,10 @@
 </p>
 
 <h1 align="center">XtremeSlider</h1>
-<p align="center">A free, lightweight WordPress image slider plugin with three layout modes and zero external dependencies.</p>
+<p align="center">A free, lightweight WordPress image slider plugin with four layout modes and zero external dependencies.</p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-1.3.4-blue" alt="Version 1.3.4">
+  <img src="https://img.shields.io/badge/version-1.4.3-blue" alt="Version 1.4.3">
   <img src="https://img.shields.io/badge/license-GPL--2.0-green" alt="GPL-2.0">
   <img src="https://img.shields.io/badge/WordPress-6.0%2B-blue?logo=wordpress" alt="WordPress 6.0+">
   <img src="https://img.shields.io/badge/PHP-7.4%2B-purple?logo=php" alt="PHP 7.4+">
@@ -37,7 +37,11 @@ Card-based slider with customizable gradient background, rounded corners, hover 
 <p align="center"><img src="screenshot-2.jpg" alt="3D layout" width="700"></p>
 <p align="center"><img src="screenshot-4.jpg" alt="3D layout wide" width="700"></p>
 
-CSS perspective slider with depth transforms, center slide prominent, adjacent slides rotated and scaled back, glassmorphism arrows.
+CSS perspective slider with depth transforms, center slide prominent, adjacent slides rotated and scaled back, glassmorphism arrows. Per-slider background color picker.
+
+### Options — Clickable Card Grid
+
+Static grid of option cards (image + title + caption). Clicking a card reveals its own HTML content in a detail panel below — useful for product variants, plan comparisons, or any "pick one, see details" pattern. Each card's HTML is edited inline with Code / Preview tabs in the admin. Per-slider background color picker.
 
 ---
 
@@ -45,13 +49,14 @@ CSS perspective slider with depth transforms, center slide prominent, adjacent s
 
 - Free mode: up to 2 sliders, 10 images per slider, and 1–6 visible slides
 - Premium mode: unlimited sliders, 50 images per slider, and up to 15 visible slides
-- Per-slide: title, caption, description, link URL
-- Image ratio: 16:10 (landscape) or 1:1 (square)
+- Per-slide: title, caption, description, link URL (Options layout adds per-card HTML content)
+- Image ratio: 16:10 (landscape), 1:1 (square), or Fixed Height (set pixel height, width scales to natural image proportions). Premium adds Default (original) ratio
 - Autoplay with configurable speed (2–10s) and hover pause
 - Fullscreen mode (100vw edge-to-edge)
 - Touch/swipe support on all layouts
 - Mouse drag navigation (Default layout)
-- Configurable link hover color and gradient background
+- Square corners and black arrows display toggles
+- Configurable link hover color, gradient background (Cool), and solid background color (3D, Options)
 - Shortcode with per-instance overrides:
   ```
   [xtreme_slider id="5" layout="3d" visible="2" autoplay="true" fullscreen="true"]
