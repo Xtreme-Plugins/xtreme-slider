@@ -485,10 +485,11 @@ class XS_Admin_Edit {
 			$descriptions = array_map( 'sanitize_text_field', wp_unslash( $_POST['slides']['description'] ?? array() ) );
 			$link_urls    = array_map( 'sanitize_text_field', wp_unslash( $_POST['slides']['link_url'] ?? array() ) );
 			// HTML content is saved raw for users with unfiltered_html; otherwise sanitized via wp_kses_post in the loop below.
-			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Per-item sanitization happens below; admins with unfiltered_html may intentionally save raw HTML.
+			// phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Per-item sanitization happens in the foreach below; admins with unfiltered_html may intentionally save raw HTML.
 			$raw_html     = isset( $_POST['slides']['html_content'] ) && is_array( $_POST['slides']['html_content'] )
 				? wp_unslash( $_POST['slides']['html_content'] )
 				: array();
+			// phpcs:enable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 			$html_contents = array();
 			foreach ( $raw_html as $html ) {
 				$html_contents[] = current_user_can( 'unfiltered_html' ) ? (string) $html : wp_kses_post( (string) $html );
