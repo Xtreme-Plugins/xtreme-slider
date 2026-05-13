@@ -1,7 +1,7 @@
 <?php
 defined( 'ABSPATH' ) || exit;
 
-class Xtrsl_Admin_Edit {
+class XS_Admin_Edit {
 
 	public static function render() {
 		if ( class_exists( 'XS_Activator' ) ) {
@@ -28,8 +28,8 @@ class Xtrsl_Admin_Edit {
 			$save_feedback_title = __( 'Slider could not be saved. The plugin storage was repaired, so please try again.', 'xtreme-slider' );
 		}
 
-		$slider = $slider_id ? xtrsl_get_slider( $slider_id ) : null;
-		$slides = $slider_id ? xtrsl_get_slides( $slider_id ) : array();
+		$slider = $slider_id ? xs_get_slider( $slider_id ) : null;
+		$slides = $slider_id ? xs_get_slides( $slider_id ) : array();
 		$is_new = ! $slider;
 
 		// Defaults for new slider.
@@ -37,15 +37,19 @@ class Xtrsl_Admin_Edit {
 			$slider = (object) array(
 				'id'             => 0,
 				'title'          => '',
-				'layout'         => xtrsl_setting( 'defaults', 'layout', 'default' ),
-				'visible_count'  => xtrsl_setting( 'defaults', 'visible_count', 3 ),
-				'autoplay'       => xtrsl_setting( 'defaults', 'autoplay', 0 ),
-				'autoplay_speed' => xtrsl_setting( 'defaults', 'autoplay_speed', 4000 ),
-				'fullscreen'     => xtrsl_setting( 'defaults', 'fullscreen', 0 ),
-				'image_ratio'    => xtrsl_setting( 'defaults', 'image_ratio', '16:10' ),
+				'layout'         => xs_setting( 'defaults', 'layout', 'default' ),
+				'visible_count'  => xs_setting( 'defaults', 'visible_count', 3 ),
+				'autoplay'       => xs_setting( 'defaults', 'autoplay', 0 ),
+				'autoplay_speed' => xs_setting( 'defaults', 'autoplay_speed', 4000 ),
+				'fullscreen'     => xs_setting( 'defaults', 'fullscreen', 0 ),
+				'image_ratio'    => xs_setting( 'defaults', 'image_ratio', '16:10' ),
+				'fixed_height'   => 0,
+				'square_corners' => 0,
+				'black_arrows'   => 0,
 				'link_hover_color' => '#ee212b',
-				'gradient_start' => xtrsl_setting( 'defaults', 'gradient_start', '#ec38bc' ),
-				'gradient_end'   => xtrsl_setting( 'defaults', 'gradient_end', '#7303c0' ),
+				'gradient_start' => xs_setting( 'defaults', 'gradient_start', '#ec38bc' ),
+				'gradient_end'   => xs_setting( 'defaults', 'gradient_end', '#7303c0' ),
+				'bg_color_3d'    => xs_setting( 'defaults', 'bg_color_3d', '#0a0a0a' ),
 				'status'         => 'active',
 			);
 		}
@@ -63,7 +67,7 @@ class Xtrsl_Admin_Edit {
 			<div class="xs-admin-header">
 				<div class="xs-admin-logo">
 					<a href="https://xtremeplugins.com/plugins/xtreme-slider" target="_blank" rel="noopener noreferrer">
-						<img src="<?php echo esc_url( XS_PLUGIN_URL . 'assets/img/xtreme-slider.webp' ); ?>" alt="Xtreme Slider">
+						<img src="<?php echo esc_url( XS_PLUGIN_URL . 'assets/img/xtreme-slider.svg' ); ?>" alt="Xtreme Slider">
 					</a>
 				</div>
 				<a href="<?php echo esc_url( admin_url( 'admin.php?page=xtreme-slider' ) ); ?>" class="xs-btn xs-btn-secondary"><?php echo '&larr; ' . esc_html__( 'All Sliders', 'xtreme-slider' ); ?></a>
@@ -96,7 +100,7 @@ class Xtrsl_Admin_Edit {
 			?>
 
 			<form method="post" id="xs-edit-form">
-				<?php wp_nonce_field( 'xtrsl_save_slider', 'xtrsl_edit_nonce' ); ?>
+				<?php wp_nonce_field( 'xs_save_slider', 'xs_edit_nonce' ); ?>
 				<input type="hidden" name="slider_id" value="<?php echo esc_attr( $slider->id ); ?>">
 
 				<div class="xs-edit-layout">
@@ -261,11 +265,39 @@ class Xtrsl_Admin_Edit {
 								</label>
 							</div>
 							<div class="xs-form-row">
+								<label class="xs-toggle-label">
+									<input type="checkbox" name="title_shadow" value="1" <?php checked( $slider->title_shadow ?? 0, 1 ); ?>>
+									<?php esc_html_e( 'Add shadow to titles', 'xtreme-slider' ); ?>
+								</label>
+							</div>
+							<div class="xs-form-row">
+								<label class="xs-toggle-label">
+									<input type="checkbox" name="square_corners" value="1" <?php checked( $slider->square_corners ?? 0, 1 ); ?>>
+									<?php esc_html_e( 'Square corners', 'xtreme-slider' ); ?>
+								</label>
+							</div>
+							<div class="xs-form-row xs-hide-on-options">
+								<label class="xs-toggle-label">
+									<input type="checkbox" name="black_arrows" value="1" <?php checked( $slider->black_arrows ?? 0, 1 ); ?>>
+									<?php esc_html_e( 'Black arrows', 'xtreme-slider' ); ?>
+								</label>
+							</div>
+							<div class="xs-form-row xs-ratio-row">
 								<label><?php esc_html_e( 'Image Ratio', 'xtreme-slider' ); ?></label>
-								<select name="image_ratio">
-									<option value="16:10" <?php selected( $slider->image_ratio ?? '16:10', '16:10' ); ?>><?php esc_html_e( '16:10 (Landscape)', 'xtreme-slider' ); ?></option>
-									<option value="1:1" <?php selected( $slider->image_ratio ?? '16:10', '1:1' ); ?>><?php esc_html_e( '1:1 (Square)', 'xtreme-slider' ); ?></option>
-								</select>
+								<div class="xs-ratio-inline">
+									<select name="image_ratio">
+										<?php foreach ( $image_ratio_options as $ratio_value => $ratio_label ) : ?>
+											<option value="<?php echo esc_attr( $ratio_value ); ?>" <?php selected( $slider->image_ratio ?? '16:10', $ratio_value ); ?>><?php echo esc_html( $ratio_label ); ?></option>
+										<?php endforeach; ?>
+									</select>
+									<div id="xs-fixed-height-row" class="xs-fixed-height-inline" style="<?php echo ( ( $slider->image_ratio ?? '' ) === 'fixed' ) ? '' : 'display:none;'; ?>">
+										<input type="number" name="fixed_height" value="<?php echo esc_attr( $slider->fixed_height ?? 400 ); ?>" min="50" max="2000" class="xs-input-sm" placeholder="400"<?php echo ( ( $slider->image_ratio ?? '' ) !== 'fixed' ) ? ' disabled' : ''; ?>>
+										<span class="xs-unit-label">px</span>
+									</div>
+								</div>
+								<?php if ( $is_premium || 'default' === ( $slider->image_ratio ?? '' ) ) : ?>
+									<div class="xs-form-hint"><?php esc_html_e( 'Premium Default keeps each image at its original aspect ratio.', 'xtreme-slider' ); ?></div>
+								<?php endif; ?>
 							</div>
 							<div class="xs-form-row xs-hide-on-options">
 								<label><?php esc_html_e( 'Link Hover Color', 'xtreme-slider' ); ?></label>
@@ -295,13 +327,20 @@ class Xtrsl_Admin_Edit {
 							<p class="xs-form-desc"><?php esc_html_e( 'Visible behind the slider in Cool layout.', 'xtreme-slider' ); ?></p>
 							<div class="xs-form-row">
 								<label><?php esc_html_e( 'Start Color', 'xtreme-slider' ); ?></label>
-								<input type="text" name="gradient_start" value="<?php echo esc_attr( $slider->gradient_start ); ?>" class="xs-color-picker">
+								<input type="text" name="gradient_start" value="<?php echo esc_attr( $slider->gradient_start ?? '' ); ?>" class="xs-color-picker">
 							</div>
 							<div class="xs-form-row">
 								<label><?php esc_html_e( 'End Color', 'xtreme-slider' ); ?></label>
-								<input type="text" name="gradient_end" value="<?php echo esc_attr( $slider->gradient_end ); ?>" class="xs-color-picker">
+								<input type="text" name="gradient_end" value="<?php echo esc_attr( $slider->gradient_end ?? '' ); ?>" class="xs-color-picker">
 							</div>
-							<div class="xs-gradient-preview" id="xs-gradient-preview" style="background: linear-gradient(135deg, <?php echo esc_attr( $slider->gradient_start ); ?>, <?php echo esc_attr( $slider->gradient_end ); ?>);"></div>
+							<?php
+							$gs = $slider->gradient_start ?? '';
+							$ge = $slider->gradient_end   ?? '';
+							$preview_style = ( $gs || $ge )
+								? 'background: linear-gradient(135deg, ' . esc_attr( $gs ?: $ge ) . ', ' . esc_attr( $ge ?: $gs ) . ');'
+								: '';
+						?>
+						<div class="xs-gradient-preview" id="xs-gradient-preview" style="<?php echo esc_attr( $preview_style ); ?>"></div>
 						</div>
 
 						<div class="xs-form-section" id="xs-3d-bg-section" style="<?php echo '3d' !== $slider->layout ? 'display:none;' : ''; ?>">
@@ -339,7 +378,7 @@ class Xtrsl_Admin_Edit {
 	}
 
 	public static function process_save() {
-		if ( ! isset( $_POST['xtrsl_edit_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['xtrsl_edit_nonce'] ) ), 'xtrsl_save_slider' ) ) {
+		if ( ! isset( $_POST['xs_edit_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['xs_edit_nonce'] ) ), 'xs_save_slider' ) ) {
 			wp_die( esc_html__( 'Security check failed.', 'xtreme-slider' ) );
 		}
 
@@ -372,11 +411,17 @@ class Xtrsl_Admin_Edit {
 		$autoplay       = isset( $_POST['autoplay'] ) ? 1 : 0;
 		$autoplay_speed = max( 2000, min( 10000, absint( wp_unslash( $_POST['autoplay_speed'] ?? 4000 ) ) ) );
 		$fullscreen     = isset( $_POST['fullscreen'] ) ? 1 : 0;
-		$image_ratio    = sanitize_text_field( wp_unslash( $_POST['image_ratio'] ?? '16:10' ) );
-		$image_ratio    = in_array( $image_ratio, array( '16:10', '1:1' ), true ) ? $image_ratio : '16:10';
-		$link_hover_color = xtrsl_sanitize_hex_color( sanitize_text_field( wp_unslash( $_POST['link_hover_color'] ?? '#ee212b' ) ) );
-		$gradient_start   = xtrsl_sanitize_hex_color( sanitize_text_field( wp_unslash( $_POST['gradient_start'] ?? '#ec38bc' ) ) );
-		$gradient_end     = xtrsl_sanitize_hex_color( sanitize_text_field( wp_unslash( $_POST['gradient_end'] ?? '#7303c0' ) ) );
+		$title_shadow   = isset( $_POST['title_shadow'] ) ? 1 : 0;
+		$square_corners = isset( $_POST['square_corners'] ) ? 1 : 0;
+		$black_arrows   = isset( $_POST['black_arrows'] ) ? 1 : 0;
+		$current_ratio  = $current_slider->image_ratio ?? xs_setting( 'defaults', 'image_ratio', '16:10' );
+		$image_ratio    = xs_sanitize_image_ratio( sanitize_text_field( wp_unslash( $_POST['image_ratio'] ?? '16:10' ) ), 'editor', $current_ratio );
+		$fixed_height   = xs_sanitize_fixed_height( absint( wp_unslash( $_POST['fixed_height'] ?? 0 ) ) );
+		$link_hover_color = xs_sanitize_hex_color( sanitize_text_field( wp_unslash( $_POST['link_hover_color'] ?? '' ) ) ) ?: '#ee212b';
+		$gradient_start   = xs_sanitize_hex_color( sanitize_text_field( wp_unslash( $_POST['gradient_start'] ?? '' ) ) );
+		$gradient_end     = xs_sanitize_hex_color( sanitize_text_field( wp_unslash( $_POST['gradient_end'] ?? '' ) ) );
+		$bg_color_3d      = xs_sanitize_hex_color( sanitize_text_field( wp_unslash( $_POST['bg_color_3d'] ?? '' ) ) );
+		$bg_color_options = xs_sanitize_hex_color( sanitize_text_field( wp_unslash( $_POST['bg_color_options'] ?? '' ) ) );
 		$status         = sanitize_text_field( wp_unslash( $_POST['status'] ?? 'active' ) );
 		$status         = in_array( $status, array( 'active', 'draft' ), true ) ? $status : 'active';
 		$now            = current_time( 'mysql' );
@@ -389,6 +434,10 @@ class Xtrsl_Admin_Edit {
 			'autoplay_speed' => $autoplay_speed,
 			'fullscreen'     => $fullscreen,
 			'image_ratio'      => $image_ratio,
+			'fixed_height'     => $fixed_height,
+			'title_shadow'     => $title_shadow,
+			'square_corners'   => $square_corners,
+			'black_arrows'     => $black_arrows,
 			'link_hover_color' => $link_hover_color,
 			'gradient_start'   => $gradient_start,
 			'gradient_end'   => $gradient_end,
@@ -398,22 +447,35 @@ class Xtrsl_Admin_Edit {
 			'updated_at'     => $now,
 		);
 
-		$format = array( '%s', '%s', '%d', '%d', '%d', '%d', '%s', '%s', '%s', '%s', '%s', '%s' );
+		$format = array( '%s', '%s', '%d', '%d', '%d', '%d', '%s', '%d', '%d', '%d', '%d', '%s', '%s', '%s', '%s', '%s', '%s', '%s' );
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Transaction protects slider/slides from partial writes.
+		$wpdb->query( 'START TRANSACTION' );
 
 		if ( $slider_id ) {
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table, update operation.
-			$wpdb->update( $wpdb->prefix . 'xtrsl_sliders', $data, array( 'id' => $slider_id ), $format, array( '%d' ) );
+			$result = $wpdb->update( $wpdb->prefix . 'xs_sliders', $data, array( 'id' => $slider_id ), $format, array( '%d' ) );
+			if ( false === $result ) {
+				self::rollback_and_fail( $redirect_id, $wpdb->last_error );
+			}
 		} else {
 			$data['created_at'] = $now;
 			$format[]           = '%s';
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Custom table, insert operation.
-			$wpdb->insert( $wpdb->prefix . 'xtrsl_sliders', $data, $format );
-			$slider_id = $wpdb->insert_id;
+			$result = $wpdb->insert( $wpdb->prefix . 'xs_sliders', $data, $format );
+			if ( false === $result || ! $wpdb->insert_id ) {
+				self::rollback_and_fail( 0, $wpdb->last_error );
+			}
+			$slider_id   = (int) $wpdb->insert_id;
+			$redirect_id = $slider_id;
 		}
 
 		// Save slides.
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table, delete before re-insert.
-		$wpdb->delete( $wpdb->prefix . 'xtrsl_slides', array( 'slider_id' => $slider_id ), array( '%d' ) );
+		$deleted = $wpdb->delete( $wpdb->prefix . 'xs_slides', array( 'slider_id' => $slider_id ), array( '%d' ) );
+		if ( false === $deleted ) {
+			self::rollback_and_fail( $redirect_id, $wpdb->last_error );
+		}
 
 		if ( ! empty( $_POST['slides']['image_id'] ) && is_array( $_POST['slides']['image_id'] ) ) {
 			$image_ids    = array_map( 'absint', wp_unslash( $_POST['slides']['image_id'] ) );
@@ -422,10 +484,12 @@ class Xtrsl_Admin_Edit {
 			$captions     = array_map( 'sanitize_text_field', wp_unslash( $_POST['slides']['caption'] ?? array() ) );
 			$descriptions = array_map( 'sanitize_text_field', wp_unslash( $_POST['slides']['description'] ?? array() ) );
 			$link_urls    = array_map( 'sanitize_text_field', wp_unslash( $_POST['slides']['link_url'] ?? array() ) );
-			// HTML content is saved raw for users with unfiltered_html; otherwise sanitized via wp_kses_post.
+			// HTML content is saved raw for users with unfiltered_html; otherwise sanitized via wp_kses_post in the loop below.
+			// phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Per-item sanitization happens in the foreach below; admins with unfiltered_html may intentionally save raw HTML.
 			$raw_html     = isset( $_POST['slides']['html_content'] ) && is_array( $_POST['slides']['html_content'] )
 				? wp_unslash( $_POST['slides']['html_content'] )
 				: array();
+			// phpcs:enable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 			$html_contents = array();
 			foreach ( $raw_html as $html ) {
 				$html_contents[] = current_user_can( 'unfiltered_html' ) ? (string) $html : wp_kses_post( (string) $html );
@@ -437,8 +501,8 @@ class Xtrsl_Admin_Edit {
 					continue;
 				}
 				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Custom table, insert operation.
-				$wpdb->insert(
-					$wpdb->prefix . 'xtrsl_slides',
+				$inserted = $wpdb->insert(
+					$wpdb->prefix . 'xs_slides',
 					array(
 						'slider_id'    => $slider_id,
 						'image_id'     => $image_ids[ $i ],
@@ -464,7 +528,7 @@ class Xtrsl_Admin_Edit {
 		$wpdb->query( 'COMMIT' );
 
 		// Redirect to edit page with success message.
-		wp_safe_redirect( admin_url( 'admin.php?page=xtrsl-edit&slider_id=' . $slider_id . '&saved=1' ) );
+		wp_safe_redirect( admin_url( 'admin.php?page=xs-edit&slider_id=' . $slider_id . '&saved=1' ) );
 		exit;
 	}
 
@@ -474,7 +538,8 @@ class Xtrsl_Admin_Edit {
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Best-effort rollback for partial writes.
 		$wpdb->query( 'ROLLBACK' );
 
-		if ( $error ) {
+		if ( $error && defined( 'WP_DEBUG' ) && WP_DEBUG && defined( 'WP_DEBUG_LOG' ) && WP_DEBUG_LOG ) {
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Gated by WP_DEBUG + WP_DEBUG_LOG; only logs failed DB writes during a transaction rollback.
 			error_log( 'Xtreme Slider save failed: ' . $error );
 		}
 
