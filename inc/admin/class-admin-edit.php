@@ -415,7 +415,7 @@ class XS_Admin_Edit {
 		$square_corners = isset( $_POST['square_corners'] ) ? 1 : 0;
 		$black_arrows   = isset( $_POST['black_arrows'] ) ? 1 : 0;
 		$current_ratio  = $current_slider->image_ratio ?? xs_setting( 'defaults', 'image_ratio', '16:10' );
-		$image_ratio    = xs_sanitize_image_ratio( wp_unslash( $_POST['image_ratio'] ?? '16:10' ), 'editor', $current_ratio );
+		$image_ratio    = xs_sanitize_image_ratio( sanitize_text_field( wp_unslash( $_POST['image_ratio'] ?? '16:10' ) ), 'editor', $current_ratio );
 		$fixed_height   = xs_sanitize_fixed_height( absint( wp_unslash( $_POST['fixed_height'] ?? 0 ) ) );
 		$link_hover_color = xs_sanitize_hex_color( sanitize_text_field( wp_unslash( $_POST['link_hover_color'] ?? '' ) ) ) ?: '#ee212b';
 		$gradient_start   = xs_sanitize_hex_color( sanitize_text_field( wp_unslash( $_POST['gradient_start'] ?? '' ) ) );
@@ -484,7 +484,8 @@ class XS_Admin_Edit {
 			$captions     = array_map( 'sanitize_text_field', wp_unslash( $_POST['slides']['caption'] ?? array() ) );
 			$descriptions = array_map( 'sanitize_text_field', wp_unslash( $_POST['slides']['description'] ?? array() ) );
 			$link_urls    = array_map( 'sanitize_text_field', wp_unslash( $_POST['slides']['link_url'] ?? array() ) );
-			// HTML content is saved raw for users with unfiltered_html; otherwise sanitized via wp_kses_post.
+			// HTML content is saved raw for users with unfiltered_html; otherwise sanitized via wp_kses_post in the loop below.
+			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Per-item sanitization happens below; admins with unfiltered_html may intentionally save raw HTML.
 			$raw_html     = isset( $_POST['slides']['html_content'] ) && is_array( $_POST['slides']['html_content'] )
 				? wp_unslash( $_POST['slides']['html_content'] )
 				: array();
@@ -536,7 +537,8 @@ class XS_Admin_Edit {
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Best-effort rollback for partial writes.
 		$wpdb->query( 'ROLLBACK' );
 
-		if ( $error ) {
+		if ( $error && defined( 'WP_DEBUG' ) && WP_DEBUG && defined( 'WP_DEBUG_LOG' ) && WP_DEBUG_LOG ) {
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Gated by WP_DEBUG + WP_DEBUG_LOG; only logs failed DB writes during a transaction rollback.
 			error_log( 'Xtreme Slider save failed: ' . $error );
 		}
 

@@ -99,6 +99,7 @@ class XS_Admin {
 			'loadTitles'  => array(
 				'empty'   => __( 'Add images first.', 'xtreme-slider' ),
 				'single'  => __( '1 title loaded', 'xtreme-slider' ),
+				/* translators: %d: number of slide titles that were filled in */
 				'multiple'=> __( '%d titles loaded', 'xtreme-slider' ),
 				'none'    => __( 'No filenames found', 'xtreme-slider' ),
 			),

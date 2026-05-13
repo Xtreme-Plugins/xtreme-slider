@@ -186,6 +186,7 @@ class XS_Renderer {
 			<div class="xs-options-grid">
 				<?php foreach ( $slides as $index => $slide ) :
 					$img_url   = esc_url( $slide->image_url );
+					/* translators: %d: slide number (1-based) used as fallback when the slide has no title */
 					$title     = $slide->title ? $slide->title : sprintf( __( 'Slide %d', 'xtreme-slider' ), $index + 1 );
 					$caption   = $slide->caption ?? '';
 					$is_active = 0 === $index;
