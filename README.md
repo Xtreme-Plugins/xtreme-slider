@@ -6,7 +6,7 @@
 <p align="center">A free, lightweight WordPress image slider plugin with four layout modes and zero external dependencies.</p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-1.4.3-blue" alt="Version 1.4.3">
+  <img src="https://img.shields.io/badge/version-1.4.4-blue" alt="Version 1.4.4">
   <img src="https://img.shields.io/badge/license-GPL--2.0-green" alt="GPL-2.0">
   <img src="https://img.shields.io/badge/WordPress-6.0%2B-blue?logo=wordpress" alt="WordPress 6.0+">
   <img src="https://img.shields.io/badge/PHP-7.4%2B-purple?logo=php" alt="PHP 7.4+">
